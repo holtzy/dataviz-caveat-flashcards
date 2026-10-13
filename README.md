@@ -19,6 +19,7 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [The spaghetti chart](png/09-the-spaghetti-chart-horiz.png)
 - [Connect the dots](png/17-connect-the-dots-horiz.png)
 - [Stacked charts are hard to read](png/24-stacked-charts-are-hard-horiz.png)
+- [Make date axes easy to follow](png/30-readable-date-axis-horiz.png)
 
 ## Parts of a whole and overlaps
 - [What's wrong with pie charts?](png/13-whats-wrong-with-pie-horiz.png)
@@ -33,12 +34,14 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [Don't move countries around](png/26-dont-move-countries-horiz.png)
 - [Beware of the Mercator projection](png/27-beware-mercator-horiz.png)
 
-## Misleading axes and framing
+## Misleading charts
 - [Do not cut the y-axis](png/03-do-not-cut-y-axis-horiz.png)
 - [Avoid counterintuitive visuals](png/12-avoid-counterintuitive-horiz.png)
 - [Dual y-axis](png/15-dual-y-axis-horiz.png)
 - [Avoid 3D](png/19-avoid-3d-horiz.png)
 - [Avoid cherry-picking data](png/25-avoid-cherry-picking-horiz.png)
+- [Draw proportions accurately](png/29-draw-proportions-accurately-horiz.png)
+- [Share the y-axis to compare charts](png/32-share-the-y-axis-horiz.png)
 
 ## Color
 - [Use color intentionally](png/06-use-color-intentionally-horiz.png)
@@ -46,6 +49,9 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [Optimize background colors](png/21-optimizing-background-colors-horiz.png)
 - [Color contrast](png/22-color-contrast-horiz.png)
 - [Avoid pure, flashy colors](png/23-avoid-pure-color-horiz.png)
+- [Use a sequential palette for numbers](png/31-sequential-palette-for-numbers-horiz.png)
+- [Too many colors kill the story](png/33-too-many-colors-horiz.png)
+- [Don't use a gradient for groups](png/34-distinct-colors-for-groups-horiz.png)
 
 ## Labels and legends
 - [Prefer horizontal labels](png/02-prefer-horizontal-labels-horiz.png)
