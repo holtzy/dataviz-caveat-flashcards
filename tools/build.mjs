@@ -66,6 +66,25 @@ function worldMap(w, h, projection, labelSize) {
     label("Africa", proj([20, 6]), "middle", "#fff").replace(/stroke="#fff" stroke-width="[^"]*"/, "") + label("Greenland", [gx + labelSize * 0.3, gy], "start", "#333"));
 }
 
+// ---------- card 28: scatter plot aspect ratio ----------
+// One fixed point cloud (seeded, so every render is identical), drawn at whatever size the panel asks for.
+const rand = ((seed) => () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296))(28);
+const normal = () => Math.sqrt(-2 * Math.log(rand() || 1e-9)) * Math.cos(2 * Math.PI * rand());
+const CLOUD = Array.from({ length: 140 }, () => {
+  const x = rand();
+  return [x, Math.min(1, Math.max(0, 0.15 + 0.65 * x + normal() * 0.11))];
+});
+
+// Axes as on the "Color contrast" card: thin lines offset from the plot, with end caps.
+function scatter(w, h, r, stroke) {
+  const gap = stroke * 12, cap = stroke * 4;
+  const axes = `<g stroke="#333" stroke-width="${stroke}" fill="none">
+    <path d="M${-gap},0V${h}M${-gap - cap},0H${-gap + cap}M${-gap - cap},${h}H${-gap + cap}"/>
+    <path d="M0,${h + gap}H${w}M0,${h + gap - cap}V${h + gap + cap}M${w},${h + gap - cap}V${h + gap + cap}"/></g>`;
+  const dots = CLOUD.map(([x, y]) => `<circle cx="${(r + x * (w - 2 * r)).toFixed(1)}" cy="${(h - r - y * (h - 2 * r)).toFixed(1)}" r="${r}"/>`).join("");
+  return svg(w, h, axes + `<g fill="url(#g)" stroke="#fff" stroke-width="${r / 4}">${dots}</g>`);
+}
+
 // ---------- card definitions ----------
 const CARDS = {
   "26-dont-move-countries": {
@@ -87,6 +106,17 @@ const CARDS = {
     ],
     horiz: { mw: 900, mh: 600, valign: true, left: (w, h) => worldMap(w, h, geoMercator(), 26), right: (w, h) => worldMap(w, h, geoEqualEarth(), 26) },
     vert: { mw: 520, mh: 340, valign: true, left: (w, h) => worldMap(w, h, geoMercator(), 14), right: (w, h) => worldMap(w, h, geoEqualEarth(), 14) },
+  },
+  "28-scatter-plot-aspect-ratio": {
+    title: "MIND YOUR SCATTER PLOT’S SHAPE",
+    titleBreak: "SCATTER ",
+    caption: [
+      "Stretching a scatter plot changes how steep and how strong the relationship looks.",
+      "Default to a square plot, and always use a 1:1 ratio when both axes share the same unit.",
+    ],
+    // Panels ignore mw/mh: each side has its own shape, centred in the panel.
+    horiz: { valign: true, left: () => scatter(760, 330, 9, 2.5), right: () => scatter(480, 480, 9, 2.5) },
+    vert: { valign: true, left: () => scatter(440, 190, 5, 1.4), right: () => scatter(290, 290, 5, 1.4) },
   },
 };
 
