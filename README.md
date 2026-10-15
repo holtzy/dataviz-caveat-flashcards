@@ -14,6 +14,7 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [Histograms: mind the bin size](png/04-histogram-mind-the-bin-horiz.png)
 - [Boxplots hide information](png/05-boxplots-hide-info-horiz.png)
 - [Error bars on barplots](png/14-error-bars-on-barplot-horiz.png)
+- [Show the sample size](png/43-show-the-sample-size-horiz.png)
 
 ## Lines and time series
 - [The spaghetti chart](png/09-the-spaghetti-chart-horiz.png)
@@ -29,10 +30,12 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [Size bubbles by area, not radius](png/07-map-bubble-size-to-area-horiz.png)
 - [Z-index matters](png/18-z-index-matters-horiz.png)
 - [Mind your scatter plot's shape](png/28-scatter-plot-aspect-ratio-horiz.png)
+- [Beware of overplotting](png/48-beware-of-overplotting-horiz.png)
 
 ## Maps
 - [Don't move countries around](png/26-dont-move-countries-horiz.png)
 - [Beware of the Mercator projection](png/27-beware-mercator-horiz.png)
+- [Normalize your maps](png/41-normalize-your-maps-horiz.png)
 
 ## Misleading charts
 - [Do not cut the y-axis](png/03-do-not-cut-y-axis-horiz.png)
@@ -42,6 +45,7 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [Avoid cherry-picking data](png/25-avoid-cherry-picking-horiz.png)
 - [Draw proportions accurately](png/29-draw-proportions-accurately-horiz.png)
 - [Share the y-axis to compare charts](png/32-share-the-y-axis-horiz.png)
+- [Respect time intervals](png/42-respect-time-intervals-horiz.png)
 
 ## Color
 - [Use color intentionally](png/06-use-color-intentionally-horiz.png)
@@ -52,7 +56,21 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - [Use a sequential palette for numbers](png/31-sequential-palette-for-numbers-horiz.png)
 - [Too many colors kill the story](png/33-too-many-colors-horiz.png)
 - [Don't use a gradient for groups](png/34-distinct-colors-for-groups-horiz.png)
+- [Avoid the rainbow palette](png/44-avoid-the-rainbow-palette-horiz.png)
+- [Diverging data, diverging palette](png/45-diverging-palette-horiz.png)
+- [Think of colorblind readers](png/46-think-of-colorblind-readers-horiz.png)
 
 ## Labels and legends
 - [Prefer horizontal labels](png/02-prefer-horizontal-labels-horiz.png)
 - [Minimize the use of legends](png/11-minimize-use-of-legends-horiz.png)
+- [Don't put labels on top of the data](png/36-labels-off-the-data-horiz.png)
+- [Round your numbers](png/50-round-your-numbers-horiz.png)
+
+## Design
+- [Align everything with something](png/35-align-everything-horiz.png)
+- [Two fonts are enough](png/37-two-fonts-max-horiz.png)
+- [Do you really need that box?](png/38-remove-the-box-horiz.png)
+- [Font size matters](png/39-font-size-matters-horiz.png)
+- [Group what belongs together](png/40-group-what-belongs-together-horiz.png)
+- [Reorder your heatmap](png/47-reorder-your-heatmap-horiz.png)
+- [Make the title say something](png/49-make-the-title-say-something-horiz.png)
