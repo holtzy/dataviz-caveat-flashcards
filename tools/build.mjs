@@ -397,17 +397,17 @@ const ANOMALY_BINS = ["−2 to −1", "−1 to 0", "0 to 1", "1 to 2", "2 to 3"]
 const DIVERGING5 = ["#3B6FB6", "#A9C4E6", "#F4C3B1", "#E27F64", "#B83A2E"];
 const anomalyClass = (v) => Math.min(4, Math.max(0, Math.floor(v) + 2));
 
-function europeMap(w, h, colorOf, legend, heading, fs) {
-  const legendW = fs * 8;
-  const path = geoPath(geoMercator().fitExtent([[legendW, 0], [w, h]], { type: "FeatureCollection", features: EUROPE }));
-  const shapes = EUROPE.map((c) => `<path d="${path(c)}" fill="${colorOf(EU.get(c.properties.name))}"/>`).join("");
+const europeProjection = (w, h, fs) => geoMercator().fitExtent([[fs * 8, 0], [w, h]], { type: "FeatureCollection", features: EUROPE });
+function europeMap(w, h, colorOf, legend, heading, fs, extra = "") {
+  const path = geoPath(europeProjection(w, h, fs));
+  const shapes = EUROPE.map((c) => `<path d="${path(c)}" fill="${colorOf(EU.get(c.properties.name), c.properties.name)}"/>`).join("");
   const sw = fs * 1.6, sh = fs * 1.1, step = sh + fs * 0.35, ly = h - legend.length * step;
   const items = legend.map(([color, label], i) => {
     const y = ly + (legend.length - 1 - i) * step;
     return `<rect x="0" y="${y}" width="${sw}" height="${sh}" fill="${color}"/><text x="${sw + fs * 0.5}" y="${y + sh / 2}" dominant-baseline="middle">${label}</text>`;
   }).join("");
   const head = heading.map((line, i) => `<text x="0" y="${ly - fs * (0.9 + 1.25 * (heading.length - 1 - i))}" font-weight="400">${line}</text>`).join("");
-  return svg(w, h, `<g stroke="#fff" stroke-width="${fs / 16}" stroke-linejoin="round">${shapes}</g><g font-family="Roboto Slab" font-size="${fs}" font-weight="300" fill="#333">${head}${items}</g>`);
+  return svg(w, h, `<g stroke="#fff" stroke-width="${fs / 16}" stroke-linejoin="round">${shapes}</g><g font-family="Roboto Slab" font-size="${fs}" font-weight="300" fill="#333">${head}${items}</g>` + extra);
 }
 const COUNT_Q = quintiles("count"), RATE_Q = quintiles("rate");
 const rawMap = (w, h, fs) => europeMap(w, h, (d) => SEQUENTIAL[COUNT_Q.classOf(d.count)], SEQUENTIAL.map((c, i) => [c, COUNT_Q.labels[i]]), ["Cases"], fs);
@@ -547,6 +547,51 @@ function roundedBars(k, rounded) {
     [0, 0.1, 0.2, 0.3].map((t) => `<text x="${L + w(t)}" y="${B + 14}" text-anchor="middle">${t.toFixed(5)}</text>`).join("") +
     `<text x="${L + w(0.15)}" y="${B + 28}" text-anchor="middle">Share (proportion, 0–1)</text>`;
   return scaled(300, 195, k, `<g font-family="Roboto Slab" font-size="9" font-weight="300" fill="#333">${bars}${axis}</g>`);
+}
+
+// ---------- cards 51-53: more maps ----------
+// Card 51: countries without data, drawn as "low" or as missing.
+const NO_DATA = new Set(["Ukraine", "Belarus", "Moldova", "Serbia", "Kosovo", "Bosnia and Herz.", "Albania"]);
+const HATCH = (fs) => `<defs><pattern id="hatch" patternUnits="userSpaceOnUse" width="${fs / 2.5}" height="${fs / 2.5}" patternTransform="rotate(45)">
+  <rect width="${fs / 2.5}" height="${fs / 2.5}" fill="#F0F0F0"/><path d="M0,0V${fs / 2.5}" stroke="#BDBDBD" stroke-width="${fs / 10}"/></pattern></defs>`;
+const missingMap = (w, h, fs, honest) => europeMap(w, h,
+  (d, name) => (NO_DATA.has(name) ? (honest ? "url(#hatch)" : SEQUENTIAL[0]) : SEQUENTIAL[RATE_Q.classOf(d.rate)]),
+  [...(honest ? [["url(#hatch)", "No data"]] : []), ...SEQUENTIAL.map((c, i) => [c, RATE_Q.labels[i]])],
+  ["Cases per", "100,000 people"], fs, HATCH(fs));
+
+// Card 52: the two highest values belong to tiny countries.
+const MALTA = keepPolys(byName("Malta"), ([[x0]]) => x0 > 14);
+const rand52 = seeded(52);
+const SMALL_CLASS = new Map(EUROPE.map((c) => [c.properties.name, Math.floor(rand52() * 4)]));
+SMALL_CLASS.set("Luxembourg", 4).set("Malta", 4);
+const LEVELS = ["Very low", "Low", "Medium", "High", "Very high"];
+function smallStatesMap(w, h, fs, callouts) {
+  const proj = europeProjection(w, h, fs), path = geoPath(proj);
+  const malta = `<path d="${path(MALTA)}" fill="${SEQUENTIAL[4]}"/>`;
+  const marks = !callouts ? "" : [["Luxembourg", geoCentroid(byName("Luxembourg"))], ["Malta", [14.4, 35.9]]].map(([name, lonlat]) => {
+    const [x, y] = proj(lonlat), r = fs * 0.55;
+    return `<circle cx="${x}" cy="${y}" r="${r}" fill="${SEQUENTIAL[4]}" stroke="#212121" stroke-width="${fs / 12}"/>` +
+      `<text x="${x + r + fs * 0.35}" y="${y}" dominant-baseline="middle" font-family="Roboto Slab" font-size="${fs}" font-weight="400" fill="#212121" stroke="#fff" stroke-width="${fs / 4}" paint-order="stroke" stroke-linejoin="round">${name}</text>`;
+  }).join("");
+  return europeMap(w, h, (d, name) => SEQUENTIAL[SMALL_CLASS.get(name)], SEQUENTIAL.map((c, i) => [c, LEVELS[i]]), ["Index"], fs, malta + marks);
+}
+
+// Card 53: ranking a dozen close values, on a map or as sorted bars.
+const RANK_VALUES = [["France", 52], ["Germany", 55], ["Spain", 47], ["Italy", 49], ["Portugal", 44], ["Belgium", 58], ["Netherlands", 61],
+  ["Austria", 53], ["Switzerland", 63], ["Ireland", 57], ["Denmark", 59], ["Poland", 42]];
+const RANK_MAP = new Map(RANK_VALUES);
+const rankColor = (v) => TEAL_RAMP(0.15 + ((v - 40) / 25) * 0.85);
+const rankMap = (w, h, fs) => europeMap(w, h, (d, name) => (RANK_MAP.has(name) ? rankColor(RANK_MAP.get(name)) : "#EDEDED"),
+  [40, 45, 50, 55, 60, 65].slice(0, 5).map((v) => [rankColor(v + 2.5), `${v}–${v + 5}`]), ["Score"], fs);
+function rankBars(k) {
+  const rows = [...RANK_VALUES].sort((a, b) => b[1] - a[1]), L = 72, bh = 10, step = 15;
+  const bars = rows.map(([name, v], i) => {
+    const y = 4 + i * step, w = (v / 65) * 190;
+    return shaded(`M${L},${y}h${w}v${bh}h${-w}Z`, 1.2) +
+      `<text x="${L - 6}" y="${y + bh / 2}" text-anchor="end" dominant-baseline="middle">${name}</text>` +
+      `<text x="${L + w + 5}" y="${y + bh / 2}" dominant-baseline="middle" font-weight="300">${v}</text>`;
+  }).join("");
+  return scaled(290, 4 + rows.length * step, k, `<g font-family="Roboto Slab" font-size="8.5" fill="#333">${bars}</g>`);
 }
 
 // ---------- card definitions ----------
@@ -801,6 +846,36 @@ const CARDS = {
     ],
     horiz: { valign: true, left: () => roundedBars(2.4, false), right: () => roundedBars(2.4, true) },
     vert: { valign: true, left: () => roundedBars(1.35, false), right: () => roundedBars(1.35, true) },
+  },
+  "51-show-missing-data": {
+    title: "SHOW MISSING DATA AS MISSING",
+    titleBreak: "DATA ",
+    caption: [
+      "When countries without data get the lightest color, readers take them for low values.",
+      "Give missing data its own neutral style, like grey hatching, and name it in the legend.",
+    ],
+    horiz: { valign: true, left: () => missingMap(820, 600, 22, false), right: () => missingMap(820, 600, 22, true) },
+    vert: { valign: true, left: () => missingMap(460, 340, 12.5, false), right: () => missingMap(460, 340, 12.5, true) },
+  },
+  "52-small-regions-disappear": {
+    title: "DON’T LET SMALL REGIONS DISAPPEAR",
+    titleBreak: "SMALL ",
+    caption: [
+      "On a choropleth, small countries are only a few pixels wide: here, the two highest values are invisible.",
+      "Call them out with markers and labels, or use a tile map where every region gets the same size.",
+    ],
+    horiz: { valign: true, left: () => smallStatesMap(820, 600, 22, false), right: () => smallStatesMap(820, 600, 22, true) },
+    vert: { valign: true, left: () => smallStatesMap(460, 340, 12.5, false), right: () => smallStatesMap(460, 340, 12.5, true) },
+  },
+  "53-maybe-you-dont-need-a-map": {
+    title: "MAYBE YOU DON’T NEED A MAP",
+    titleBreak: "YOU ",
+    caption: [
+      "If the question is “who ranks first?”, colored shapes make readers squint and guess.",
+      "When geography is not the point, a sorted bar chart compares values far more precisely.",
+    ],
+    horiz: { valign: true, left: () => rankMap(820, 600, 22), right: () => rankBars(2.4) },
+    vert: { valign: true, left: () => rankMap(460, 340, 12.5), right: () => rankBars(1.3) },
   },
 };
 

@@ -41,6 +41,9 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Don't move countries around · [link](png/26-dont-move-countries-horiz.png)
 - Beware of the Mercator projection · [link](png/27-beware-mercator-horiz.png)
 - Normalize your maps · [link](png/41-normalize-your-maps-horiz.png)
+- Show missing data as missing · [link](png/51-show-missing-data-horiz.png)
+- Don't let small regions disappear · [link](png/52-small-regions-disappear-horiz.png)
+- Maybe you don't need a map · [link](png/53-maybe-you-dont-need-a-map-horiz.png)
 
 ## Bar charts
 - Rank your barplot · [link](png/01-rank-your-barplot-horiz.png)
