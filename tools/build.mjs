@@ -594,6 +594,34 @@ function rankBars(k) {
   return scaled(290, 4 + rows.length * step, k, `<g font-family="Roboto Slab" font-size="8.5" fill="#333">${bars}</g>`);
 }
 
+// ---------- card 54: dumbbell instead of grouped bars ----------
+// One value per country in 2026 and 2027 (made-up), sorted by the 2027 value in both charts.
+const YEARS = [["Sweden", 45, 61], ["France", 42, 58], ["Germany", 51, 55], ["Netherlands", 34, 52], ["Spain", 30, 47],
+  ["Belgium", 47, 44], ["Italy", 38, 35], ["Portugal", 25, 33], ["Poland", 20, 29], ["Austria", 28, 24]];
+const Y2026 = "#B5B5B5", Y2027 = "#4C9A87";
+function yearChart(k, dumbbell) {
+  const L = 70, T = 22, step = 17, x = (v) => L + (v / 70) * 200, B = T + YEARS.length * step + 4;
+  const marks = YEARS.map(([name, a, b], i) => {
+    const y = T + i * step + step / 2;
+    const label = `<text x="${L - 7}" y="${y}" text-anchor="end" dominant-baseline="middle">${name}</text>`;
+    if (!dumbbell)
+      return label + `<rect x="${L}" y="${y - 6}" width="${x(a) - L}" height="5.5" fill="${Y2026}"/>` +
+        `<rect x="${L}" y="${y + 0.5}" width="${x(b) - L}" height="5.5" fill="${Y2027}"/>`;
+    return label + `<path d="M${x(a)},${y}H${x(b)}" stroke="#E0E0E0" stroke-width="2.2"/>` +
+      `<circle cx="${x(a)}" cy="${y}" r="3.6" fill="${Y2026}"/><circle cx="${x(b)}" cy="${y}" r="3.6" fill="${Y2027}"/>`;
+  }).join("");
+  // Grouped bars need a legend; the dumbbell labels its first row directly.
+  const [, a0, b0] = YEARS[0];
+  const key = dumbbell
+    ? `<text x="${x(a0)}" y="${T - 4}" text-anchor="middle" fill="${Y2026}">2026</text><text x="${x(b0)}" y="${T - 4}" text-anchor="middle" fill="${Y2027}">2027</text>`
+    : [[Y2026, "2026"], [Y2027, "2027"]].map(([c, t], i) =>
+        `<rect x="${L + i * 45}" y="2" width="8" height="8" fill="${c}"/><text x="${L + i * 45 + 12}" y="6" dominant-baseline="middle">${t}</text>`).join("");
+  const ticks = [0, 20, 40, 60];
+  const axis = `<path d="M${L},${B}H${x(70)}${ticks.map((t) => `M${x(t)},${B}v3`).join("")}" stroke="#333" stroke-width="0.8"/>` +
+    ticks.map((t) => `<text x="${x(t)}" y="${B + 12}" text-anchor="middle" font-weight="300">${t}</text>`).join("");
+  return scaled(300, B + 16, k, `<g font-family="Roboto Slab" font-size="8.5" fill="#333">${key}${marks}${axis}</g>`);
+}
+
 // ---------- card definitions ----------
 const CARDS = {
   "26-dont-move-countries": {
@@ -876,6 +904,16 @@ const CARDS = {
     ],
     horiz: { valign: true, left: () => rankMap(820, 600, 22), right: () => rankBars(2.4) },
     vert: { valign: true, left: () => rankMap(460, 340, 12.5), right: () => rankBars(1.3) },
+  },
+  "54-two-groups-try-a-dumbbell": {
+    title: "TWO GROUPS? TRY A DUMBBELL PLOT",
+    titleBreak: "GROUPS? ",
+    caption: [
+      "Side-by-side bars double the ink and leave readers to estimate the gap between them on their own.",
+      "When the change is the story, a dumbbell plot shows it directly, and uses half the ink.",
+    ],
+    horiz: { valign: true, left: () => yearChart(2.9, false), right: () => yearChart(2.9, true) },
+    vert: { valign: true, left: () => yearChart(1.6, false), right: () => yearChart(1.6, true) },
   },
 };
 

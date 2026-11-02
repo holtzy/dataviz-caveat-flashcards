@@ -15,6 +15,12 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Share the y-axis to compare charts · [link](png/32-share-the-y-axis-horiz.png)
 - Respect time intervals · [link](png/42-respect-time-intervals-horiz.png)
 
+## Wrong chart type
+- What's wrong with pie charts? · [link](png/13-whats-wrong-with-pie-horiz.png)
+- Radial bar charts distort perception · [link](png/16-radial-bar-chart-horiz.png)
+- Maybe you don't need a map · [link](png/53-maybe-you-dont-need-a-map-horiz.png)
+- Two groups? Try a dumbbell plot · [link](png/54-two-groups-try-a-dumbbell-horiz.png)
+
 ## Color
 - Use color intentionally · [link](png/06-use-color-intentionally-horiz.png)
 - Keep colors consistent across charts · [link](png/10-keep-colors-consistent-horiz.png)
@@ -43,12 +49,10 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Normalize your maps · [link](png/41-normalize-your-maps-horiz.png)
 - Show missing data as missing · [link](png/51-show-missing-data-horiz.png)
 - Don't let small regions disappear · [link](png/52-small-regions-disappear-horiz.png)
-- Maybe you don't need a map · [link](png/53-maybe-you-dont-need-a-map-horiz.png)
 
 ## Bar charts
 - Rank your barplot · [link](png/01-rank-your-barplot-horiz.png)
 - Avoid the moiré effect with lollipops · [link](png/08-avoid-moire-effect-horiz.png)
-- Radial bar charts distort perception · [link](png/16-radial-bar-chart-horiz.png)
 
 ## Distributions
 - Histograms: mind the bin size · [link](png/04-histogram-mind-the-bin-horiz.png)
@@ -63,7 +67,6 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Make date axes easy to follow · [link](png/30-readable-date-axis-horiz.png)
 
 ## Parts of a whole and overlaps
-- What's wrong with pie charts? · [link](png/13-whats-wrong-with-pie-horiz.png)
 - UpSet plots · [link](png/20-upset-plots-horiz.png)
 
 ## Scatter plots and bubbles
