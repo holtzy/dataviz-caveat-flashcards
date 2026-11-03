@@ -107,15 +107,15 @@ const fan = (w, positions) => positions.map(([x, y, rot], i) =>
   if (k > deck.length) throw new Error(`grid shows ${k} cards but there are only ${deck.length}: make the cards bigger`);
   const table = `<svg class="table" width="${W}" height="${H}"><filter id="concrete" x="0" y="0" width="100%" height="100%">
     <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="5" seed="4"/>
-    <feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.53  0 0 0 0 0.50  0.6 0 0 0 -0.22"/></filter>
-    <rect width="100%" height="100%" fill="#E9E7E3"/><rect width="100%" height="100%" filter="url(#concrete)"/></svg>`;
+    <feColorMatrix values="0 0 0 0 0.60  0 0 0 0 0.58  0 0 0 0 0.55  0.25 0 0 0 -0.09"/></filter>
+    <rect width="100%" height="100%" fill="#FBFAF8"/><rect width="100%" height="100%" filter="url(#concrete)"/></svg>`;
   const css = `html,body{width:${W}px;height:${H}px;overflow:hidden}body{position:relative}
   .table{position:absolute;inset:0}
   .grid{position:absolute;left:${(W - GW) / 2}px;top:${(H - GH) / 2}px;width:${GW}px;height:${GH}px;transform:rotate(${ANGLE}deg)}
   .card{position:absolute;width:${CW}px;height:${CH}px;border-radius:9px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.18),0 6px 16px rgba(0,0,0,.14),0 0 0 1px rgba(0,0,0,.04)}
   .card img{display:block;width:100%;height:100%}
   .card::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,0) 45%,rgba(0,0,0,.05))}
-  .light{position:absolute;inset:0;z-index:9;background:radial-gradient(ellipse 75% 140% at 50% 40%,rgba(255,255,255,.08),rgba(0,0,0,0) 60%,rgba(0,0,0,.08))}`;
+  .light{position:absolute;inset:0;z-index:9;background:radial-gradient(ellipse 75% 140% at 50% 40%,rgba(255,255,255,.05),rgba(0,0,0,0) 60%,rgba(0,0,0,.04))}`;
   fs.writeFileSync(`${OUT}/grid.html`, page(css, `${table}<div class="grid">${imgs.join("")}</div><div class="light"></div>`));
   fs.writeFileSync(`${OUT}/grid.size`, `${W},${H}`);
 }
