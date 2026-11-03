@@ -697,6 +697,124 @@ function circularBars(k, good) {
   return scaled(220, 220, k, scale + bars);
 }
 
+// ---------- card 58: margins between charts ----------
+// A 3-chart dashboard (one big chart on the left, two stacked on the right), packed edge to edge or spaced out.
+const DASH_LINE = [12, 18, 15, 24, 22, 30, 28, 37, 34, 42];
+const DASH_BARS = [42, 35, 28, 20, 12];
+const rand58 = seeded(58);
+const DASH_DOTS = Array.from({ length: 22 }, () => { const x = rand58(); return [x, Math.min(1, Math.max(0, 0.15 + 0.7 * x + (rand58() - 0.5) * 0.35))]; });
+function dashboard(k, spaced) {
+  const W = 300, H = 190, gap = spaced ? 10 : 0, pad = spaced ? 11 : 3;
+  const lw = spaced ? 160 : 165, rh = (H - gap) / 2;
+  const panels = [
+    { x: 0, y: 0, w: lw, h: H, title: "Revenue", kind: "line" },
+    { x: lw + gap, y: 0, w: W - lw - gap, h: rh, title: "Top products", kind: "bars" },
+    { x: lw + gap, y: rh + gap, w: W - lw - gap, h: rh, title: "Price vs sales", kind: "dots" },
+  ];
+  const chart = (kind, x0, y0, w, h) => {
+    if (kind === "line") {
+      const d = DASH_LINE.map((v, i) => `${i ? "L" : "M"}${(x0 + (i / 9) * w).toFixed(1)},${(y0 + h - (v / 45) * h).toFixed(1)}`).join("");
+      return `<path d="${d}" fill="none" stroke="#5BA593" stroke-width="2" stroke-linejoin="round"/><path d="M${x0},${y0 + h}H${x0 + w}" stroke="#333" stroke-width="0.6"/>`;
+    }
+    if (kind === "bars") {
+      const bh = h / DASH_BARS.length;
+      return DASH_BARS.map((v, i) => `<rect x="${x0}" y="${(y0 + i * bh + bh * 0.15).toFixed(1)}" width="${((v / 42) * w).toFixed(1)}" height="${(bh * 0.7).toFixed(1)}" fill="url(#g)"/>`).join("");
+    }
+    return DASH_DOTS.map(([px, py]) => `<circle cx="${(x0 + px * w).toFixed(1)}" cy="${(y0 + h - py * h).toFixed(1)}" r="2.2" fill="#5BA593"/>`).join("");
+  };
+  const body = panels.map(({ x, y, w, h, title, kind }) => {
+    const titleY = y + pad + 7;
+    return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${spaced ? 4 : 0}" fill="#fff" stroke="#BDBDBD" stroke-width="0.8"/>` +
+      `<text x="${x + pad}" y="${titleY}" font-family="Montserrat" font-size="8.5" fill="#212121">${title}</text>` +
+      chart(kind, x + pad, titleY + (spaced ? 9 : 4), w - 2 * pad, y + h - pad - (titleY + (spaced ? 9 : 4)));
+  }).join("");
+  return scaled(W, H, k, body);
+}
+
+// ---------- card 59: linked hover across charts ----------
+// Two charts sharing the same months; the mouse hovers July on the top one.
+const MONTH_INITIALS = "JFMAMJJASOND".split("");
+const LINKED_VISITS = [22, 25, 24, 30, 34, 41, 52, 48, 37, 33, 29, 35]; // thousands
+const LINKED_SALES = [0.8, 0.9, 0.9, 1.1, 1.2, 1.5, 1.8, 1.7, 1.3, 1.2, 1.0, 1.4]; // thousands
+const LINKED_HOVER = 6;
+const pointer = (x, y) => `<path transform="translate(${x},${y})" d="M0,0L0,14L3.5,10.5L6,16L8.4,15L5.9,9.6L10.4,9.6Z" fill="#fff" stroke="#212121" stroke-width="1" stroke-linejoin="round"/>`;
+const tooltip = (x, y, text) => {
+  const w = text.length * 4.6 + 10;
+  return `<rect x="${x}" y="${y - 8}" width="${w}" height="15" rx="3" fill="#212121"/><text x="${x + 5}" y="${y}" dominant-baseline="middle" font-family="Roboto Slab" font-size="8" fill="#fff">${text}</text>`;
+};
+function linkedCharts(k, linked) {
+  const L = 14, R = 290, step = (R - L) / 12, cx = (i) => L + step * (i + 0.5);
+  const top = { T: 22, B: 88 }, bot = { T: 122, B: 180 };
+  const yTop = (v) => top.B - (v / 55) * (top.B - top.T), yBot = (v) => bot.B - (v / 2) * (bot.B - bot.T);
+  const line = LINKED_VISITS.map((v, i) => `${i ? "L" : "M"}${cx(i).toFixed(1)},${yTop(v).toFixed(1)}`).join("");
+  const bars = LINKED_SALES.map((v, i) => {
+    const fill = linked && i !== LINKED_HOVER ? "#CFE7E0" : "url(#g)";
+    return `<rect x="${(cx(i) - step * 0.32).toFixed(1)}" y="${yBot(v).toFixed(1)}" width="${(step * 0.64).toFixed(1)}" height="${(bot.B - yBot(v)).toFixed(1)}" fill="${fill}"/>`;
+  }).join("");
+  const title = (y, t) => `<text x="${L}" y="${y}" font-family="Montserrat" font-size="9" fill="#212121">${t}</text>`;
+  const axis = (y) => `<path d="M${L},${y}H${R}" stroke="#333" stroke-width="0.6"/>`;
+  const months = MONTH_INITIALS.map((m, i) => `<text x="${cx(i)}" y="${bot.B + 11}" text-anchor="middle" font-family="Roboto Slab" font-size="7.5" font-weight="300" fill="#333">${m}</text>`).join("");
+  const hx = cx(LINKED_HOVER), hy = yTop(LINKED_VISITS[LINKED_HOVER]);
+  // Not linked: only the hovered chart reacts. Linked: a guide line runs through both charts and both values show.
+  const hover = linked
+    ? `<path d="M${hx},${top.T - 4}V${bot.B}" stroke="#212121" stroke-width="0.7" stroke-dasharray="2.5 2"/>` +
+      `<circle cx="${hx}" cy="${hy}" r="3.4" fill="#2F6E5F" stroke="#fff" stroke-width="1.2"/>` +
+      tooltip(hx + 8, hy - 2, "Jul: 52k visits") + tooltip(hx + 8, yBot(LINKED_SALES[LINKED_HOVER]) + 6, "Jul: 1.8k sales")
+    : `<circle cx="${hx}" cy="${hy}" r="3.4" fill="#2F6E5F" stroke="#fff" stroke-width="1.2"/>` + tooltip(hx + 8, hy - 2, "Jul: 52k visits");
+  return scaled(300, 196, k, title(10, "Visitors") + title(110, "Sales") + axis(top.B) + axis(bot.B) +
+    `<path d="${line}" fill="none" stroke="#5BA593" stroke-width="2" stroke-linejoin="round"/>` + bars + months + hover + pointer(hx + 2, hy + 3));
+}
+
+// ---------- card 60: don't label every tick ----------
+// One series over 26 days; the x axis labels every day, or every 5 days with shorter minor ticks between.
+const rand60 = seeded(60);
+const TICK_SERIES = Array.from({ length: 26 }, (_, i) => 18 + i * 0.9 + Math.sin(i / 2.5) * 6 + rand60() * 4);
+function tickChart(k, sparse) {
+  const L = 22, R = 286, T = 12, B = 150, x = (d) => L + (d / 25) * (R - L), y = (v) => B - (v / 50) * (B - T);
+  const line = TICK_SERIES.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  const grid = [0, 25, 50].map((v) => `<path d="M${L},${y(v)}H${R}" stroke="#ECECEC" stroke-width="0.8"/><text x="${L - 6}" y="${y(v)}" text-anchor="end" dominant-baseline="middle">${v}</text>`).join("");
+  const ticks = Array.from({ length: 26 }, (_, d) => {
+    const major = !sparse || d % 5 === 0;
+    return `<path d="M${x(d)},${B + 3}v${major ? 5 : 2.5}" stroke="#333" stroke-width="0.7"/>` +
+      (major ? `<text x="${x(d)}" y="${B + 16}" text-anchor="middle">${d}</text>` : "");
+  }).join("");
+  return scaled(300, 172, k, `<g font-family="Roboto Slab" font-size="9" font-weight="300" fill="#333">${grid}
+    <path d="M${L},${B + 3}H${R}" stroke="#333" stroke-width="0.7"/>${ticks}</g>
+    <path d="${line}" fill="none" stroke="#5BA593" stroke-width="2" stroke-linejoin="round"/>`);
+}
+
+// ---------- card 61: declutter, less is more ----------
+// Yearly visitors in millions (made-up), with a sharp drop in 2020.
+const VISITORS_YEARLY = [17, 18.5, 19, 19, 22, 23.5, 22, 25, 25.8, 26.5, 6.6, 9.4];
+function declutterChart(k, clean) {
+  const L = 30, R = 290, T = 46, B = 182, n = VISITORS_YEARLY.length, step = (R - L) / n;
+  const y = (v) => B - (v / 30) * (B - T), cx = (i) => L + step * (i + 0.5);
+  const bars = VISITORS_YEARLY.map((v, i) => {
+    const fill = !clean ? "#3F51B5" : i >= 10 ? "url(#g)" : "#CFCFCF";
+    return `<rect x="${(cx(i) - step * 0.34).toFixed(1)}" y="${y(v).toFixed(1)}" width="${(step * 0.68).toFixed(1)}" height="${(B - y(v)).toFixed(1)}" fill="${fill}"/>`;
+  }).join("");
+  const label = (x, yy, t, anchor = "middle", extra = "") => `<text x="${x}" y="${yy}" text-anchor="${anchor}" ${extra}>${t}</text>`;
+  let furniture, head;
+  if (!clean) {
+    // Frame, a dense grid in both directions, decimals, a legend box and every year labelled.
+    const hs = Array.from({ length: 13 }, (_, i) => i * 2.5);
+    furniture = hs.map((v) => `<path d="M${L},${y(v)}H${R}" stroke="#BDBDBD" stroke-width="0.6"/>` + label(L - 4, y(v) + 2.5, v.toFixed(1), "end")).join("") +
+      VISITORS_YEARLY.map((_, i) => `<path d="M${L + step * i},${T}V${B}" stroke="#BDBDBD" stroke-width="0.6"/>` + label(cx(i), B + 10, 2010 + i)).join("") +
+      `<rect x="${L}" y="${T}" width="${R - L}" height="${B - T}" fill="none" stroke="#444" stroke-width="1"/>` +
+      `<rect x="${L + 6}" y="${T + 5}" width="82" height="15" fill="#fff" stroke="#444" stroke-width="0.6"/><rect x="${L + 10}" y="${T + 9}" width="7" height="7" fill="#3F51B5"/>` +
+      label(L + 21, T + 15, "visitors (millions)", "start");
+    head = `<text x="0" y="16" font-family="Montserrat" font-size="11.5" fill="#212121">Yearly visitors</text>` +
+      `<text x="0" y="30" font-family="Roboto Slab" font-size="8" font-weight="300" fill="#333">Museum attendance, 2010–2021</text>`;
+  } else {
+    // A few light gridlines, round labels, and the title and color carrying the message.
+    furniture = [0, 10, 20, 30].map((v) => `<path d="M${L},${y(v)}H${R}" stroke="#ECECEC" stroke-width="0.8"/>` + label(L - 5, y(v) + 2.5, v === 30 ? "30M" : v, "end")).join("") +
+      [0, 5, 10].map((i) => label(cx(i), B + 10, 2010 + i)).join("");
+    head = `<text x="0" y="16" font-family="Montserrat" font-size="11.5" fill="#212121">Visitors dropped by 75% in 2020</text>` +
+      `<text x="0" y="30" font-family="Roboto Slab" font-size="8" font-weight="300" fill="#333">Museum attendance, in millions</text>`;
+  }
+  return scaled(300, 196, k, `<g font-family="Roboto Slab" font-size="7.5" font-weight="300" fill="#333">${furniture}</g>${bars}${head}`);
+}
+
 // ---------- card definitions ----------
 const CARDS = {
   "26-dont-move-countries": {
@@ -1019,6 +1137,46 @@ const CARDS = {
     ],
     horiz: { valign: true, left: () => circularBars(2.7, false), right: () => circularBars(2.7, true) },
     vert: { valign: true, left: () => circularBars(1.6, false), right: () => circularBars(1.6, true) },
+  },
+  "58-use-margins-between-charts": {
+    title: "USE MARGINS BETWEEN CHARTS",
+    titleBreak: "MARGINS ",
+    caption: [
+      "When charts touch each other, the page feels crowded and it’s hard to tell where one chart ends.",
+      "Leave clear gaps between them, and some padding inside each one.",
+    ],
+    horiz: { valign: true, left: () => dashboard(2.6, false), right: () => dashboard(2.6, true) },
+    vert: { valign: true, left: () => dashboard(1.55, false), right: () => dashboard(1.55, true) },
+  },
+  "59-link-your-charts": {
+    title: "LINK CHARTS THAT SHARE AN AXIS",
+    titleBreak: "CHARTS ",
+    caption: [
+      "When charts share dates or groups, a tooltip on just one of them leaves readers hunting for the match.",
+      "On hover, highlight the same date or group on every chart at once.",
+    ],
+    horiz: { valign: true, left: () => linkedCharts(2.6, false), right: () => linkedCharts(2.6, true) },
+    vert: { valign: true, left: () => linkedCharts(1.55, false), right: () => linkedCharts(1.55, true) },
+  },
+  "60-dont-label-every-tick": {
+    title: "DON’T LABEL EVERY TICK",
+    titleBreak: "LABEL ",
+    caption: [
+      "Labelling every tick crowds the axis, and on small screens the numbers soon touch or overlap.",
+      "Label round steps only, and keep shorter ticks in between to show the scale.",
+    ],
+    horiz: { valign: true, left: () => tickChart(2.6, false), right: () => tickChart(2.6, true) },
+    vert: { valign: true, left: () => tickChart(1.5, false), right: () => tickChart(1.5, true) },
+  },
+  "61-declutter-less-is-more": {
+    title: "DECLUTTER: LESS IS MORE",
+    titleBreak: "DECLUTTER: ",
+    caption: [
+      "Frames, dense grids, legends and decimals all compete with your message for the reader’s eye.",
+      "Remove what doesn’t serve your point, and let the title and colors carry it.",
+    ],
+    horiz: { valign: true, left: () => declutterChart(2.6, false), right: () => declutterChart(2.6, true) },
+    vert: { valign: true, left: () => declutterChart(1.5, false), right: () => declutterChart(1.5, true) },
   },
 };
 

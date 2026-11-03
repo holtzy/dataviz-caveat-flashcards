@@ -7,6 +7,7 @@ Everything here presents the whole card collection in one go, ready to send by e
 - `collage-email.jpg`: the same collage, 1200px wide, light enough to embed in an email.
 - `collage-lego.jpg`: alternative collage mixing big and small horizontal cards with vertical ones, every row filling the full width.
 - `collage-masonry.jpg`: alternative collage in six equal columns mixing both orientations, all ending at the same height.
+- `deck.png`: 5 vertical cards fanned out with a "cards" sticker, on a transparent background (same layout as the lead magnet on the Python Graph Gallery). Fits any page or email background.
 - `banner.png`: 1200×630 banner announcing the free PDF, for the top of the email or as a social preview image.
 
 Card order, titles and categories come from the main README. After adding cards or moving them between sections, rebuild everything with:

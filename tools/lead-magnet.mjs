@@ -132,16 +132,20 @@ function collage(name, tiles) {
   fs.writeFileSync(`${OUT}/${name}.size`, `${W},${H}`);
 }
 
-// Regular grid of the vertical cards.
+// Regular grid of the vertical cards. The column count leaving the fewest empty slots wins,
+// and one navy tile spans whatever is left at the end of the last row.
 {
-  const cols = 8, rows = Math.ceil(N / cols), w = (CW - (cols - 1) * GAP) / cols, h = w * RATIO.vert;
-  collage("collage", withBrand(cols * rows, "grid").map((c, i) => [c, "vert", (i % cols) * (w + GAP), Math.floor(i / cols) * (h + GAP), w, h]));
+  const cols = [8, 9, 10].reduce((best, c) => ((c - (N % c)) % c < (best - (N % best)) % best ? c : best));
+  const rows = Math.ceil(N / cols), w = (CW - (cols - 1) * GAP) / cols, h = w * RATIO.vert, left = cols * rows - N;
+  const tiles = cards.map((c, i) => [c, "vert", (i % cols) * (w + GAP), Math.floor(i / cols) * (h + GAP), w, h]);
+  if (left) tiles.push([{ brand: true }, "vert", (N % cols) * (w + GAP), (rows - 1) * (h + GAP), left * w + (left - 1) * GAP, h]);
+  collage("collage", tiles);
 }
 
 // "Lego" grid: rows of blocks, each row scaled to fill the full width exactly.
 // B = one big horizontal card, V = one vertical card, HH = two horizontal cards stacked.
 {
-  const ROWS = ["B HH HH HH V HH", "HH V B V HH HH", "V HH HH V HH V HH", "HH B V B HH V", "V HH V HH B HH", "HH V HH B HH V"];
+  const ROWS = ["B HH HH HH V HH", "HH HH B V HH HH", "V HH HH V HH V HH", "HH B V B HH V", "V HH V HH B HH", "HH V HH B HH V"];
   const slots = ROWS.join(" ").split(" ").reduce((n, m) => n + (m === "HH" ? 2 : 1), 0);
   const tiles = [], queue = withBrand(slots, "lego");
   let y = 0;
@@ -168,7 +172,7 @@ function collage(name, tiles) {
 // Masonry: equal-width columns mixing both orientations. A vertical card is about as tall as three
 // horizontal ones, so columns with 0 V + 12 H, 1 V + 9 H or 2 V + 6 H end up nearly level; gaps absorb the rest.
 {
-  const PLAN = [[1, 9], [2, 6], [0, 12], [2, 6], [1, 9], [2, 6]]; // [vertical, horizontal] cards per column
+  const PLAN = [[1, 9], [2, 6], [0, 12], [1, 9], [1, 9], [2, 6]]; // [vertical, horizontal] cards per column
   const cols = PLAN.length, w = (CW - (cols - 1) * GAP) / cols, queue = withBrand(PLAN.flat().reduce((a, b) => a + b), "masonry");
   const columns = PLAN.map(([nv, nh], ci) => {
     // Spread the vertical cards along the column, shifted from one column to the next.
@@ -184,6 +188,23 @@ function collage(name, tiles) {
     for (const v of col) { tiles.push([queue.shift(), v, ci * (w + GAP), y, w, w * RATIO[v]]); y += w * RATIO[v] + gap; }
   });
   collage("collage-masonry", tiles);
+}
+
+// ---------- deck: 5 vertical cards fanned out, as on the Python Graph Gallery lead magnet ----------
+// Same geometry as DatavizCaveatsMagnet.tsx there, scaled up S times, on a transparent background.
+{
+  const S = 4, DECK = ["13-whats-wrong-with-pie", "03-do-not-cut-y-axis", "05-boxplots-hide-info", "19-avoid-3d", "09-the-spaghetti-chart"];
+  const FAN = [[-14, -50, 14], [-7, -25, 4], [0, 0, 0], [7, 25, 4], [14, 50, 14]]; // [rotate, x, y]; the middle card is on top
+  const imgs = DECK.map((slug, i) => {
+    const [rot, x, y] = FAN[i], top = i === 2;
+    return `<img src="${img(cards.find((c) => c.slug === slug), "vert")}" style="position:absolute;bottom:${42 * S}px;left:50%;margin-left:${-68 * S}px;width:${136 * S}px;height:${272 * S}px;transform-origin:bottom;border-radius:${8 * S}px;box-shadow:0 ${6 * S}px ${20 * S}px rgba(0,0,0,.16),0 0 0 ${S}px rgba(0,0,0,.08);z-index:${top ? 10 : 5 - Math.abs(i - 2)};transform:translate(${x * S}px,${y * S}px) rotate(${rot}deg) scale(${top ? 1.06 : 1})">`;
+  }).join("");
+  const W = 380 * S, H = 350 * S;
+  const css = `html,body{width:${W}px;height:${H}px;overflow:hidden;background:transparent}body{position:relative}
+  .sticker{position:absolute;top:${6 * S}px;right:${38 * S}px;z-index:20;width:${64 * S}px;height:${64 * S}px;border-radius:50%;background:${NAVY};color:#fff;
+    display:flex;align-items:center;justify-content:center;text-align:center;font-size:${12 * S}px;line-height:1.15;font-weight:600;transform:rotate(12deg);box-shadow:0 ${3 * S}px ${8 * S}px rgba(0,0,0,.2)}`;
+  fs.writeFileSync(`${OUT}/deck.html`, page(css, `${imgs}<div class="sticker mont">${N}<br>cards</div>`));
+  fs.writeFileSync(`${OUT}/deck.size`, `${W},${H}`);
 }
 
 // ---------- email banner: 1200x630, also fine as a social preview image ----------

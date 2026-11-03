@@ -14,7 +14,6 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Avoid 3D · [link](png/19-avoid-3d-horiz.png)
 - Avoid cherry-picking data · [link](png/25-avoid-cherry-picking-horiz.png)
 - Draw proportions accurately · [link](png/29-draw-proportions-accurately-horiz.png)
-- Share the y-axis to compare charts · [link](png/32-share-the-y-axis-horiz.png)
 - Respect time intervals · [link](png/42-respect-time-intervals-horiz.png)
 - Show the sample size · [link](png/43-show-the-sample-size-horiz.png)
 - Beware of Simpson's paradox · [link](png/56-simpsons-paradox-horiz.png)
@@ -29,7 +28,6 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 
 ## Color
 - Use color intentionally · [link](png/06-use-color-intentionally-horiz.png)
-- Keep colors consistent across charts · [link](png/10-keep-colors-consistent-horiz.png)
 - Optimize background colors · [link](png/21-optimizing-background-colors-horiz.png)
 - Color contrast · [link](png/22-color-contrast-horiz.png)
 - Avoid pure, flashy colors · [link](png/23-avoid-pure-color-horiz.png)
@@ -47,6 +45,7 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Font size matters · [link](png/39-font-size-matters-horiz.png)
 - Group what belongs together · [link](png/40-group-what-belongs-together-horiz.png)
 - Make the title say something · [link](png/49-make-the-title-say-something-horiz.png)
+- Declutter: less is more · [link](png/61-declutter-less-is-more-horiz.png)
 
 ## Maps
 - Don't move countries around · [link](png/26-dont-move-countries-horiz.png)
@@ -61,6 +60,13 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Don't put labels on top of the data · [link](png/36-labels-off-the-data-horiz.png)
 - Round your numbers · [link](png/50-round-your-numbers-horiz.png)
 - Annotation is crucial · [link](png/55-annotate-your-chart-horiz.png)
+- Don't label every tick · [link](png/60-dont-label-every-tick-horiz.png)
+
+## Dashboards and data stories
+- Keep colors consistent across charts · [link](png/10-keep-colors-consistent-horiz.png)
+- Share the y-axis to compare charts · [link](png/32-share-the-y-axis-horiz.png)
+- Use margins between charts · [link](png/58-use-margins-between-charts-horiz.png)
+- Link charts that share an axis · [link](png/59-link-your-charts-horiz.png)
 
 ## Other
 - Rank your barplot · [link](png/01-rank-your-barplot-horiz.png)
