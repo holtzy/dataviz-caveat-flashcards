@@ -1,17 +1,17 @@
 # Stop falling into the most common dataviz caveats
 
-<p align="center"><img src="overview/deck.png" alt="A fanned deck of dataviz caveat flashcards" width="600"></p>
+![A row of dataviz caveat flashcards](overview/strip.png)
 
 ## What is this?
 
 A collection of flashcards about the most common data visualization caveats, by [Data to Viz](https://www.data-to-viz.com).
-Each card shows a "not ideal" chart next to a better alternative, with a short explanation. They cover misleading charts, wrong chart types, color, design, maps, labels and legends, and dashboards.
+Each card shows a "not ideal" chart next to a better alternative, with a short explanation.
 
-Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version, as PNG in [`png/`](png) and as lossless WebP in [`webp/`](webp). New cards can be generated with the scripts in [`tools/`](tools).
+Each card comes in a horizontal and a vertical version, both as [PNG](png) and [WebP](webp).
 
 ## A better way to browse the flashcards
 
-👉 Browse all the cards at [dataviz-inspiration.com/caveats](https://www.dataviz-inspiration.com/caveats), for a much better experience than this repo.
+Browse all the cards at [dataviz-inspiration.com/caveats](https://www.dataviz-inspiration.com/caveats), for a much better experience than this repo.
 
 ## For AI agents
 

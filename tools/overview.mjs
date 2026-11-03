@@ -35,6 +35,19 @@ const FAN = ["54-two-groups-try-a-dumbbell", "27-beware-mercator", "44-avoid-the
 const fan = (w, positions) => positions.map(([x, y, rot], i) =>
   `<img src="${img(cards.find((c) => c.slug === FAN[i]), "horiz")}" style="position:absolute;left:${x}px;top:${y}px;width:${w}px;transform:rotate(${rot}deg);border-radius:${w / 60}px;box-shadow:0 ${w / 40}px ${w / 16}px rgba(0,0,0,.45)">`).join("");
 
+// ---------- strip: a row of overlapping horizontal cards, very wide and short, for the top of the README ----------
+// Built before the collages so it still renders when a collage layout runs out of slots.
+{
+  const STRIP = ["03-do-not-cut-y-axis", "44-avoid-the-rainbow-palette", "54-two-groups-try-a-dumbbell", "27-beware-mercator",
+    "13-whats-wrong-with-pie", "56-simpsons-paradox", "19-avoid-3d", "61-declutter-less-is-more"];
+  const CW = 480, CH = CW * 1600 / 2560, STEP = 400, PAD = 40, TILT = [-3, 2, -2, 3, -2, 2, -3, 2];
+  const W = STEP * (STRIP.length - 1) + CW + 2 * PAD, H = CH + 2 * PAD;
+  const imgs = STRIP.map((slug, i) =>
+    `<img src="file://${REPO}/png/${slug}-horiz.png" style="position:absolute;left:${PAD + i * STEP}px;top:${PAD}px;width:${CW}px;height:${CH}px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.06);transform:rotate(${TILT[i]}deg)">`).join("");
+  fs.writeFileSync(`${OUT}/strip.html`, page(`html,body{width:${W}px;height:${H}px;overflow:hidden;background:transparent}body{position:relative}`, imgs));
+  fs.writeFileSync(`${OUT}/strip.size`, `${W},${H}`);
+}
+
 // ---------- PDF: A4 landscape, cover + checklist + 3 cards per page + closing page ----------
 {
   const PAGES = Math.ceil(N / 3), firstCardPage = 3;

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Usage: tools/overview.sh
 # Builds everything in overview/ from the cards listed in caveats.json:
-# the PDF (3 cards per page), the collages of all cards, the email banner and the fanned deck.
+# the PDF (3 cards per page), the collages of all cards, the email banner, the fanned deck and the README strip.
 set -e
 TOOLS="$(cd "$(dirname "$0")" && pwd)"; REPO="$(dirname "$TOOLS")"; BUILD="$TOOLS/.build/overview"; OUT="$REPO/overview"
 CHROME="${CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
@@ -23,4 +23,6 @@ magick "$BUILD/collage-masonry.png" -quality 88 "$OUT/collage-masonry.jpg"
 shot banner 1200,630 "$OUT/banner.png"
 "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --allow-file-access-from-files --default-background-color=00000000 \
   --virtual-time-budget=10000 --window-size="$(cat "$BUILD/deck.size")" --screenshot="$OUT/deck.png" "file://$BUILD/deck.html" 2>/dev/null
+"$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --allow-file-access-from-files --default-background-color=00000000 \
+  --virtual-time-budget=10000 --window-size="$(cat "$BUILD/strip.size")" --screenshot="$OUT/strip.png" "file://$BUILD/strip.html" 2>/dev/null
 ls -lh "$OUT"
