@@ -48,6 +48,77 @@ const fan = (w, positions) => positions.map(([x, y, rot], i) =>
   fs.writeFileSync(`${OUT}/strip.size`, `${W},${H}`);
 }
 
+// ---------- table: cards scattered on a wooden table like a real deck, same wide format as the strip ----------
+{
+  const W = 3360, H = 560;
+  // [slug, orientation, centre x, centre y, rotation]; cards may run off the edges like a cropped photo
+  const SCATTER = [
+    ["26-dont-move-countries", "horiz", 170, 360, -17], ["44-avoid-the-rainbow-palette", "vert", 430, 210, 8],
+    ["03-do-not-cut-y-axis", "horiz", 690, 380, -3], ["13-whats-wrong-with-pie", "vert", 1010, 250, -21],
+    ["54-two-groups-try-a-dumbbell", "horiz", 1300, 200, 6], ["19-avoid-3d", "vert", 1510, 390, 24],
+    ["27-beware-mercator", "horiz", 1880, 330, -10], ["09-the-spaghetti-chart", "vert", 2150, 235, 3],
+    ["56-simpsons-paradox", "horiz", 2440, 380, 14], ["05-boxplots-hide-info", "vert", 2760, 220, -12],
+    ["61-declutter-less-is-more", "horiz", 3120, 340, -6],
+  ];
+  const Z = [1, 3, 2, 4, 1, 5, 2, 4, 3, 5, 2]; // stacking order, so cards don't simply alternate
+  const SIZE = { horiz: [500, 312], vert: [210, 420] };
+  const imgs = SCATTER.map(([slug, v, cx, cy, rot], i) => {
+    const [w, h] = SIZE[v];
+    return `<div class="card" style="left:${cx - w / 2}px;top:${cy - h / 2}px;width:${w}px;height:${h}px;transform:rotate(${rot}deg);z-index:${Z[i]}">
+      <img src="file://${REPO}/png/${slug}-${v}.png"></div>`;
+  }).join("");
+  const wood = `<svg class="wood" width="${W}" height="${H}"><filter id="grain" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.0015 0.05" numOctaves="4" seed="7"/>
+    <feColorMatrix values="0 0 0 0 0.30  0 0 0 0 0.17  0 0 0 0 0.07  1.3 0 0 0 -0.45"/></filter>
+    <filter id="fine" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.0006 0.35" numOctaves="2" seed="2"/>
+    <feColorMatrix values="0 0 0 0 0.25  0 0 0 0 0.13  0 0 0 0 0.05  1.6 0 0 0 -0.75"/></filter>
+    <rect width="100%" height="100%" fill="#B98A5E"/><rect width="100%" height="100%" filter="url(#grain)"/><rect width="100%" height="100%" filter="url(#fine)"/></svg>`;
+  const css = `html,body{width:${W}px;height:${H}px;overflow:hidden}body{position:relative}
+  .wood{position:absolute;inset:0}
+  .light{position:absolute;inset:0;z-index:9;pointer-events:none;background:radial-gradient(ellipse 75% 140% at 50% 35%,rgba(255,244,225,.10),rgba(40,20,5,0) 60%,rgba(40,20,5,.28))}
+  .card{position:absolute;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(30,15,0,.45),0 6px 14px rgba(30,15,0,.35),0 18px 40px rgba(30,15,0,.25)}
+  .card img{display:block;width:100%;height:100%;object-fit:cover}
+  .card::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,0) 45%,rgba(0,0,0,.06))}`;
+  fs.writeFileSync(`${OUT}/table.html`, page(css, `${wood}${imgs}<div class="light"></div>`));
+  fs.writeFileSync(`${OUT}/table.size`, `${W},${H}`);
+}
+
+// ---------- grid: vertical cards laid in a tilted, perfectly aligned grid on a table ----------
+{
+  const W = 3360, H = 560, CW = 200, CH = 400, GAP = 34, ANGLE = -32;
+  // The rotated grid must cover the whole frame, so it is laid out larger than the frame and centred on it.
+  const GW = 4200, GH = 2600, cols = Math.ceil(GW / (CW + GAP)), rows = Math.ceil(GH / (CH + GAP));
+  // Cards that land in the frame get distinct slugs, spread across sections; hidden ones reuse any slug.
+  const deck = cards.map((c) => c.slug), a = (ANGLE * Math.PI) / 180;
+  const inFrame = (x, y) => {
+    const dx = x + CW / 2 - GW / 2, dy = y + CH / 2 - GH / 2;
+    const fx = W / 2 + dx * Math.cos(a) - dy * Math.sin(a), fy = H / 2 + dx * Math.sin(a) + dy * Math.cos(a);
+    return fx > -CH / 2 && fx < W + CH / 2 && fy > -CH / 2 && fy < H + CH / 2;
+  };
+  let k = 0, hidden = 0;
+  const imgs = [];
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++) {
+      const x = c * (CW + GAP), y = r * (CH + GAP);
+      const slug = inFrame(x, y) ? deck[(k++ * 7) % deck.length] : deck[hidden++ % deck.length]; // stride 7 mixes sections
+      imgs.push(`<div class="card" style="left:${x}px;top:${y}px"><img src="file://${REPO}/png/${slug}-vert.png"></div>`);
+    }
+  if (k > deck.length) throw new Error(`grid shows ${k} cards but there are only ${deck.length}: make the cards bigger`);
+  const table = `<svg class="table" width="${W}" height="${H}"><filter id="concrete" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.012 0.03" numOctaves="5" seed="4"/>
+    <feColorMatrix values="0 0 0 0 0.18  0 0 0 0 0.17  0 0 0 0 0.16  1.2 0 0 0 -0.4"/></filter>
+    <rect width="100%" height="100%" fill="#8A8782"/><rect width="100%" height="100%" filter="url(#concrete)"/></svg>`;
+  const css = `html,body{width:${W}px;height:${H}px;overflow:hidden}body{position:relative}
+  .table{position:absolute;inset:0}
+  .grid{position:absolute;left:${(W - GW) / 2}px;top:${(H - GH) / 2}px;width:${GW}px;height:${GH}px;transform:rotate(${ANGLE}deg)}
+  .card{position:absolute;width:${CW}px;height:${CH}px;border-radius:9px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.4),0 6px 16px rgba(0,0,0,.35)}
+  .card img{display:block;width:100%;height:100%}
+  .card::after{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,0) 45%,rgba(0,0,0,.05))}
+  .light{position:absolute;inset:0;z-index:9;background:radial-gradient(ellipse 75% 140% at 50% 40%,rgba(255,255,255,.06),rgba(0,0,0,0) 60%,rgba(0,0,0,.3))}`;
+  fs.writeFileSync(`${OUT}/grid.html`, page(css, `${table}<div class="grid">${imgs.join("")}</div><div class="light"></div>`));
+  fs.writeFileSync(`${OUT}/grid.size`, `${W},${H}`);
+}
+
 // ---------- PDF: A4 landscape, cover + checklist + 3 cards per page + closing page ----------
 {
   const PAGES = Math.ceil(N / 3), firstCardPage = 3;
