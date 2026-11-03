@@ -126,14 +126,22 @@ const fan = (w, positions) => positions.map(([x, y, rot], i) =>
   const pageOf = (c) => firstCardPage + Math.floor((c.n - 1) / 3);
   const footer = (p) => `<div class="foot mont"><span>${N} DATAVIZ CAVEATS</span><span>www.data-to-viz.com · ${p}</span></div>`;
 
-  const cover = `<section class="navy">
+  // PDF viewers (macOS Preview in particular) draw blurred shadows as grey boxes, so the cover and closing
+  // backgrounds, fanned cards and shadows are screenshotted to PNG by overview.sh and placed as one image.
+  const art = (name, positions) => {
+    const css = `html,body{width:1123px;height:794px;overflow:hidden}body{${navyBg};position:relative}.fan{position:absolute;left:52%;top:0;width:48%;height:100%}`;
+    fs.writeFileSync(`${OUT}/${name}.html`, page(css, `<div class="fan">${fan(470, positions)}</div>`));
+  };
+  art("cover-art", [[60, 40, -6], [250, 190, 4], [40, 360, 3], [230, 520, -4]]);
+  art("closing-art", [[60, 40, 5], [250, 190, -3], [40, 360, -4], [230, 520, 3]]);
+
+  const cover = `<section class="navy" style="background-image:url('file://${OUT}/cover-art.jpg')">
     <div class="cover-text">
       <div class="kicker mont">A COLLECTION OF FLASHCARDS BY DATA TO VIZ</div>
       <h1 class="mont">${N} DATAVIZ<br>CAVEATS</h1>
       <p>The most common charting mistakes, each one next to a better alternative and a short explanation.</p>
       <div class="author mont">YAN HOLTZ · WWW.DATA-TO-VIZ.COM</div>
     </div>
-    <div class="cover-fan">${fan(470, [[60, 40, -6], [250, 190, 4], [40, 360, 3], [230, 520, -4]])}</div>
   </section>`;
 
   const checklist = `<section class="paper">
@@ -154,26 +162,24 @@ const fan = (w, positions) => positions.map(([x, y, rot], i) =>
     ${footer(firstCardPage + p)}
   </section>`).join("");
 
-  const closing = `<section class="navy">
+  const closing = `<section class="navy" style="background-image:url('file://${OUT}/closing-art.jpg')">
     <div class="cover-text">
       <div class="kicker mont">WANT MORE?</div>
       <h1 class="mont small">KEEP THESE<br>CLOSE BY</h1>
       <p>Pin them next to your screen, share them with your team, and find hundreds of chart examples with their code at <b>www.data-to-viz.com</b>.</p>
       <div class="author mont">FEEL FREE TO SHARE THIS PDF</div>
     </div>
-    <div class="cover-fan">${fan(470, [[60, 40, 5], [250, 190, -3], [40, 360, -4], [230, 520, 3]])}</div>
   </section>`;
 
   const css = `@page{size:297mm 210mm;margin:0}
   section{width:297mm;height:210mm;position:relative;overflow:hidden;page-break-after:always}
-  .navy{${navyBg};color:#fff;display:flex;align-items:center}
+  .navy{background:${NAVY} 0 0/100% 100% no-repeat;color:#fff;display:flex;align-items:center}
   .cover-text{width:52%;padding-left:22mm}
   .kicker{font-size:10.5pt;letter-spacing:2.5px;color:${MINT}}
   h1{font-weight:500;font-size:54pt;letter-spacing:5px;line-height:1.08;margin:7mm 0}
   h1.small{font-size:44pt}
   .cover-text p{font-size:14pt;line-height:1.6;color:#D9D8EC;max-width:125mm}
   .author{margin-top:14mm;font-size:9.5pt;letter-spacing:2px;color:#A9A7CF}
-  .cover-fan{position:relative;width:48%;height:100%}
   .paper{background:#fff;padding:13mm 15mm 0}
   h2{font-weight:500;font-size:20pt;letter-spacing:3px;margin:0;color:#212121}
   .lead{margin:2mm 0 6mm;font-size:10.5pt;color:#666}
@@ -187,7 +193,7 @@ const fan = (w, positions) => positions.map(([x, y, rot], i) =>
   figure{margin:0;width:83mm}
   figcaption{font-size:7.4pt;letter-spacing:1.5px;color:${TEAL};margin-bottom:2.2mm;font-weight:600}
   figcaption b{color:#BBB;margin-right:2.5mm;font-weight:500}
-  figure img{width:83mm;height:166mm;display:block;box-shadow:0 0.6mm 2.5mm rgba(0,0,0,.18)}
+  figure img{width:83mm;height:166mm;display:block;border:0.25mm solid #DADADA;border-radius:1mm;box-sizing:border-box}
   .foot{position:absolute;left:15mm;right:15mm;bottom:7mm;display:flex;justify-content:space-between;font-size:7pt;letter-spacing:1.5px;color:#AAA}`;
   fs.writeFileSync(`${OUT}/pdf.html`, page(css, cover + checklist + cardPages + closing));
 }

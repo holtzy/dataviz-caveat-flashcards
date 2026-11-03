@@ -13,6 +13,12 @@ done
 node "$TOOLS/overview.mjs"
 shot() { "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --allow-file-access-from-files \
   --virtual-time-budget=10000 --window-size="$2" --screenshot="$3" "file://$BUILD/$1.html" 2>/dev/null; }
+# The cover and closing pages use pre-rendered art (see overview.mjs), screenshotted at print resolution.
+for a in cover-art closing-art; do
+  "$CHROME" --headless=new --disable-gpu --hide-scrollbars --force-device-scale-factor=3 --allow-file-access-from-files \
+    --virtual-time-budget=10000 --window-size=1123,794 --screenshot="$BUILD/$a.png" "file://$BUILD/$a.html" 2>/dev/null
+  magick "$BUILD/$a.png" -quality 90 "$BUILD/$a.jpg"
+done
 "$CHROME" --headless=new --disable-gpu --allow-file-access-from-files --virtual-time-budget=15000 --no-pdf-header-footer \
   --print-to-pdf="$OUT/dataviz-caveats.pdf" "file://$BUILD/pdf.html" 2>/dev/null
 for c in collage collage-lego collage-masonry; do shot $c "$(cat "$BUILD/$c.size")" "$BUILD/$c.png"; done
