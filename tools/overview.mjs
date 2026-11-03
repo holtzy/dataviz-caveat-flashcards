@@ -1,25 +1,23 @@
-// Builds the HTML pages behind the lead magnet: a PDF of all cards, a collage, an email banner.
-// Usage: node lead-magnet.mjs   -> writes .build/lead-magnet/*.html
-// Normally run through lead-magnet.sh, which also prints the PDF and takes the screenshots into lead-magnet/.
-// Card order, titles and categories all come from the main README.
+// Builds the HTML pages of the overview: a PDF of all cards, a collage, an email banner.
+// Usage: node overview.mjs   -> writes .build/overview/*.html
+// Normally run through overview.sh, which also prints the PDF and takes the screenshots into overview/.
+// Card order, titles and categories all come from caveats.json.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const TOOLS = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(TOOLS, "..");
-const OUT = path.join(TOOLS, ".build/lead-magnet");
-const JPG = path.join(OUT, "jpg"); // compressed copies of the cards, made by lead-magnet.sh
+const OUT = path.join(TOOLS, ".build/overview");
+const JPG = path.join(OUT, "jpg"); // compressed copies of the cards, made by overview.sh
 fs.mkdirSync(OUT, { recursive: true });
 
-// ---------- cards, in README order ----------
-const sections = [];
-for (const line of fs.readFileSync(path.join(REPO, "README.md"), "utf8").split("\n")) {
-  const head = line.match(/^## (.+)/);
-  if (head) sections.push({ name: head[1], cards: [] });
-  const item = line.match(/^- (.+?) · \[link\]\(png\/(.+?)-horiz\.png\)/);
-  if (item) sections.at(-1).cards.push({ title: item[1], slug: item[2], section: sections.at(-1).name });
-}
+// ---------- cards, grouped by section in caveats.json order ----------
+const caveats = JSON.parse(fs.readFileSync(path.join(REPO, "caveats.json"), "utf8"));
+const sections = caveats.sections.map((name) => ({
+  name,
+  cards: caveats.caveats.filter((c) => c.section === name).map((c) => ({ title: c.title, slug: c.id, section: name })),
+}));
 const cards = sections.flatMap((s) => s.cards);
 cards.forEach((c, i) => (c.n = i + 1));
 const N = cards.length;
@@ -190,7 +188,7 @@ function collage(name, tiles) {
   collage("collage-masonry", tiles);
 }
 
-// ---------- deck: 5 vertical cards fanned out, as on the Python Graph Gallery lead magnet ----------
+// ---------- deck: 5 vertical cards fanned out, as on the Python Graph Gallery ----------
 // Same geometry as DatavizCaveatsMagnet.tsx there, scaled up S times, on a transparent background.
 {
   const S = 4, DECK = ["13-whats-wrong-with-pie", "03-do-not-cut-y-axis", "05-boxplots-hide-info", "19-avoid-3d", "09-the-spaghetti-chart"];
@@ -222,4 +220,4 @@ function collage(name, tiles) {
     ${fan(440, [[650, 40, -6], [760, 175, 4], [640, 320, 3], [740, 420, -4]])}`;
   fs.writeFileSync(`${OUT}/banner.html`, page(css, body));
 }
-console.log(`built lead magnet pages for ${N} cards`);
+console.log(`built overview pages for ${N} cards`);

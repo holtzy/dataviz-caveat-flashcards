@@ -1,6 +1,5 @@
-// Writes the files generated from caveats.json, the single source for the cards' text:
-//   - the card list in README.md (between the cards:start / cards:end markers)
-//   - caveats.md, the same caveats as a checklist an AI (or a person) can review a chart against
+// Writes caveats.md from caveats.json (the single source for the cards' text):
+// the caveats as a checklist an AI (or a person) can review a chart against.
 // Usage: node tools/docs.mjs   (no dependencies)
 import fs from "node:fs";
 import path from "node:path";
@@ -16,19 +15,6 @@ for (const c of caveats) {
   if (!fs.existsSync(path.join(REPO, `png/${c.id}-horiz.png`))) throw new Error(`${c.id}: png/${c.id}-horiz.png is missing`);
 }
 const bySection = sections.map((title) => ({ title, cards: caveats.filter((c) => c.section === title) }));
-
-// README.md
-const list = bySection
-  .map((s) => [`## ${s.title}`, ...s.cards.map((c) => `- ${c.title} · [link](png/${c.id}-horiz.png)`)].join("\n"))
-  .join("\n\n");
-const readmePath = path.join(REPO, "README.md");
-const readme = fs.readFileSync(readmePath, "utf8");
-const START = "<!-- cards:start -->", END = "<!-- cards:end -->";
-if (!readme.includes(START) || !readme.includes(END)) throw new Error("README.md: cards:start / cards:end markers not found");
-fs.writeFileSync(
-  readmePath,
-  readme.slice(0, readme.indexOf(START) + START.length) + `\n${list}\n` + readme.slice(readme.indexOf(END)),
-);
 
 // caveats.md
 const flat = (s) => s.replace(/\n/g, " ");
@@ -60,4 +46,4 @@ const md = [
 ].join("\n");
 fs.writeFileSync(path.join(REPO, "caveats.md"), md);
 
-console.log(`${caveats.length} caveats in ${sections.length} sections: README.md and caveats.md written`);
+console.log(`${caveats.length} caveats in ${sections.length} sections: caveats.md written`);

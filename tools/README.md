@@ -19,4 +19,4 @@ To add a card:
 2. Add its charts to `CARDS` in `build.mjs`:
    - `titleBreak`: the word after which the vertical version wraps to a second line
    - `horiz` / `vert`: chart size (`mw`, `mh`), and `left` / `right` functions returning the "not ideal" and "better" SVGs
-3. Run `./render.sh <slug>`, then `node docs.mjs` to update the main README and `caveats.md`.
+3. Run `./render.sh <slug>`, then `node docs.mjs` to update `caveats.md`.
