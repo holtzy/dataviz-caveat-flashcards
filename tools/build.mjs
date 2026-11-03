@@ -622,6 +622,81 @@ function yearChart(k, dumbbell) {
   return scaled(300, B + 16, k, `<g font-family="Roboto Slab" font-size="8.5" fill="#333">${key}${marks}${axis}</g>`);
 }
 
+// ---------- card 55: annotate your chart ----------
+// Concert tickets sold per year, in millions (made-up): steady growth, a lockdown crash, a record rebound.
+const TICKETS = [[2010, 21], [2011, 23], [2012, 24], [2013, 27], [2014, 28], [2015, 31], [2016, 33], [2017, 35], [2018, 38],
+  [2019, 40], [2020, 9], [2021, 17], [2022, 46], [2023, 62], [2024, 57], [2025, 55]];
+function ticketsChart(k, annotated) {
+  const L = 30, R = 268, T = 50, B = 185, x = (yr) => L + ((yr - 2010) / 15) * (R - L), y = (v) => B - (v / 70) * (B - T);
+  const line = TICKETS.map(([yr, v], i) => `${i ? "L" : "M"}${x(yr).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  const grid = [0, 20, 40, 60].map((v) => `<path d="M${L},${y(v)}H${R}" stroke="#ECECEC" stroke-width="0.8"/><text x="${L - 6}" y="${y(v)}" text-anchor="end" dominant-baseline="middle">${v}</text>`).join("");
+  const xl = [2010, 2015, 2020, 2025].map((yr) => `<text x="${x(yr)}" y="${B + 13}" text-anchor="middle">${yr}</text>`).join("");
+  const note = (tx, ty, lines, anchor = "start") => `<text x="${tx}" y="${ty}" text-anchor="${anchor}" font-family="Roboto Slab" font-size="7.6" font-weight="400" fill="#2F6E5F">${lines.map((l, i) => `<tspan x="${tx}" dy="${i ? 9 : 0}">${l}</tspan>`).join("")}</text>`;
+  // Shaded lockdown years (drawn under the grid), then short notes on the trend, the crash and the record, and the last value.
+  const band = annotated ? `<rect x="${x(2019.6)}" y="${T}" width="${x(2021.4) - x(2019.6)}" height="${B - T}" fill="#F1F1F1"/>` : "";
+  const notes = annotated ? note(x(2020.5), y(52), ["Lockdowns"], "middle") +
+    note(x(2020) + 7, y(9) + 3, ["−78% in a year"]) +
+    note(x(2023), y(62) - 7, ["Record: 62M"], "middle") + note(x(2014.5), y(17), ["Steady growth"], "middle") +
+    [[2023, 62], [2025, 55]].map(([yr, v]) => `<circle cx="${x(yr)}" cy="${y(v)}" r="2.6" fill="#2F6E5F"/>`).join("") + note(x(2025) + 5, y(55) + 2.5, ["55M"])
+    : "";
+  return scaled(285, 200, k, `${band}<g font-family="Roboto Slab" font-size="8" font-weight="300" fill="#333">${grid}${xl}</g>
+    <path d="${line}" fill="none" stroke="#5BA593" stroke-width="2" stroke-linejoin="round"/>${notes}
+    <text x="0" y="18" font-family="Montserrat" font-size="14" fill="#212121">Concert tickets sold</text>
+    <text x="0" y="35" font-family="Roboto Slab" font-size="8.5" font-weight="300" fill="#333">Tickets per year, in millions</text>`);
+}
+
+// ---------- card 56: Simpson's paradox ----------
+// Three overlapping groups along the diagonal, each with a downward trend inside. Together they read as one
+// rising cloud (seeded, so renders are identical).
+const rand56 = seeded(56), normal56 = normalOf(rand56);
+const SIMPSON = [[0.3, 0.3], [0.5, 0.5], [0.7, 0.7]].map(([cx, cy], gi) => ({
+  name: `Group ${"ABC"[gi]}`, color: DISTINCT5[gi],
+  pts: Array.from({ length: 34 }, () => {
+    const x = cx + (rand56() - 0.5) * 0.5;
+    return [x, cy - 0.5 * (x - cx) + normal56() * 0.07];
+  }),
+}));
+// Least-squares line through some points, drawn over their x range.
+function fitLine(pts) {
+  const n = pts.length, mx = pts.reduce((a, p) => a + p[0], 0) / n, my = pts.reduce((a, p) => a + p[1], 0) / n;
+  const slope = pts.reduce((a, [x, y]) => a + (x - mx) * (y - my), 0) / pts.reduce((a, [x]) => a + (x - mx) ** 2, 0);
+  const xs = pts.map((p) => p[0]), x0 = Math.min(...xs), x1 = Math.max(...xs);
+  return [[x0, my + slope * (x0 - mx)], [x1, my + slope * (x1 - mx)]];
+}
+function simpsonChart(k, grouped) {
+  const L = 20, T = 8, R = 280, B = 180, x = (v) => L + v * (R - L), y = (v) => B - v * (B - T);
+  const seg = ([[x0, y0], [x1, y1]], color, w) => `<path d="M${x(x0)},${y(y0)}L${x(x1)},${y(y1)}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const all = SIMPSON.flatMap((g) => g.pts);
+  const dots = SIMPSON.map((g) => g.pts.map(([px, py]) => `<circle cx="${x(px).toFixed(1)}" cy="${y(py).toFixed(1)}" r="2.6" fill="${grouped ? g.color : "#5BA593"}" fill-opacity="0.85"/>`).join("")).join("");
+  const lines = grouped
+    ? SIMPSON.map((g) => seg(fitLine(g.pts), g.color, 2)).join("") +
+      SIMPSON.map((g) => `<text x="${x(fitLine(g.pts)[1][0]) + 6}" y="${y(fitLine(g.pts)[1][1])}" dominant-baseline="middle" font-family="Roboto Slab" font-size="9" font-weight="400" fill="${g.color}">${g.name}</text>`).join("")
+    : seg(fitLine(all), "#2F6E5F", 2);
+  return scaled(320, 200, k, thinAxes(L, T, R, B) + dots + lines);
+}
+
+// ---------- card 57: circular barplot distortion ----------
+// Annular sector from angle a0 to a1 (radians, clockwise from the top), between radii r0 and r1.
+function sector(cx, cy, r0, r1, a0, a1) {
+  const pt = (r, a) => `${(cx + r * Math.sin(a)).toFixed(2)},${(cy - r * Math.cos(a)).toFixed(2)}`;
+  const big = a1 - a0 > Math.PI ? 1 : 0;
+  return `M${pt(r0, a0)}L${pt(r1, a0)}A${r1},${r1} 0 ${big} 1 ${pt(r1, a1)}L${pt(r0, a1)}A${r0},${r0} 0 ${big} 0 ${pt(r0, a0)}Z`;
+}
+// Few bars around a tiny center, or many sorted bars around a large inner circle with a value scale.
+const FEW = [35, 90, 55, 20, 70, 45, 100];
+const rand57 = seeded(57);
+const MANY = Array.from({ length: 40 }, (_, i) => Math.min(100, 12 + i * 2.2 + rand57() * 10));
+function circularBars(k, good) {
+  const c = 110, R = 105, values = good ? MANY : FEW, r0 = good ? 48 : 5;
+  const start = good ? 0.12 : 0, span = 2 * Math.PI - start * 2, step = span / values.length;
+  const r = (v) => r0 + (v / 100) * (R - r0);
+  const bars = values.map((v, i) => shaded(sector(c, c, r0, r(v), start + i * step + step * 0.12, start + (i + 1) * step - step * 0.12), 1.5)).join("");
+  // The scale sits in the gap left at the top of the good version.
+  const scale = good ? [50, 100].map((v) => `<circle cx="${c}" cy="${c}" r="${r(v)}" fill="none" stroke="#E6E6E6" stroke-width="0.6"/>` +
+    `<text x="${c}" y="${c - r(v) + 3}" text-anchor="middle" font-family="Roboto Slab" font-size="7" font-weight="300" fill="#666">${v}</text>`).join("") : "";
+  return scaled(220, 220, k, scale + bars);
+}
+
 // ---------- card definitions ----------
 const CARDS = {
   "26-dont-move-countries": {
@@ -914,6 +989,36 @@ const CARDS = {
     ],
     horiz: { valign: true, left: () => yearChart(2.9, false), right: () => yearChart(2.9, true) },
     vert: { valign: true, left: () => yearChart(1.6, false), right: () => yearChart(1.6, true) },
+  },
+  "55-annotate-your-chart": {
+    title: "ANNOTATION IS CRUCIAL",
+    titleBreak: "IS ",
+    caption: [
+      "A bare chart leaves readers guessing, and you only have a few seconds to hold their attention.",
+      "Add short notes, shaded areas and value labels that point straight at what matters.",
+    ],
+    horiz: { valign: true, left: () => ticketsChart(2.4, false), right: () => ticketsChart(2.4, true) },
+    vert: { valign: true, left: () => ticketsChart(1.35, false), right: () => ticketsChart(1.35, true) },
+  },
+  "56-simpsons-paradox": {
+    title: "BEWARE OF SIMPSON’S PARADOX",
+    titleBreak: "OF ",
+    caption: [
+      "Overall, x and y seem to rise together. Split the data by group, and the trend reverses in each one.",
+      "Before trusting a correlation, check whether a hidden variable drives it.",
+    ],
+    horiz: { valign: true, left: () => simpsonChart(2.4, false), right: () => simpsonChart(2.4, true) },
+    vert: { valign: true, left: () => simpsonChart(1.4, false), right: () => simpsonChart(1.4, true) },
+  },
+  "57-circular-barplot-distortion": {
+    title: "USE CIRCULAR BARPLOTS WITH CARE",
+    titleBreak: "BARPLOTS ",
+    caption: [
+      "Bars get wider away from the center, so large values look even larger than they are.",
+      "If you go circular, use many bars, a clear pattern, and a large inner circle.",
+    ],
+    horiz: { valign: true, left: () => circularBars(2.7, false), right: () => circularBars(2.7, true) },
+    vert: { valign: true, left: () => circularBars(1.6, false), right: () => circularBars(1.6, true) },
   },
 };
 

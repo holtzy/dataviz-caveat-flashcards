@@ -7,19 +7,25 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 
 ## Misleading charts
 - Do not cut the y-axis · [link](png/03-do-not-cut-y-axis-horiz.png)
+- Boxplots hide information · [link](png/05-boxplots-hide-info-horiz.png)
 - Avoid counterintuitive visuals · [link](png/12-avoid-counterintuitive-horiz.png)
+- Error bars on barplots · [link](png/14-error-bars-on-barplot-horiz.png)
 - Dual y-axis · [link](png/15-dual-y-axis-horiz.png)
 - Avoid 3D · [link](png/19-avoid-3d-horiz.png)
 - Avoid cherry-picking data · [link](png/25-avoid-cherry-picking-horiz.png)
 - Draw proportions accurately · [link](png/29-draw-proportions-accurately-horiz.png)
 - Share the y-axis to compare charts · [link](png/32-share-the-y-axis-horiz.png)
 - Respect time intervals · [link](png/42-respect-time-intervals-horiz.png)
+- Show the sample size · [link](png/43-show-the-sample-size-horiz.png)
+- Beware of Simpson's paradox · [link](png/56-simpsons-paradox-horiz.png)
 
 ## Wrong chart type
+- Avoid the moiré effect with lollipops · [link](png/08-avoid-moire-effect-horiz.png)
 - What's wrong with pie charts? · [link](png/13-whats-wrong-with-pie-horiz.png)
 - Radial bar charts distort perception · [link](png/16-radial-bar-chart-horiz.png)
 - Maybe you don't need a map · [link](png/53-maybe-you-dont-need-a-map-horiz.png)
 - Two groups? Try a dumbbell plot · [link](png/54-two-groups-try-a-dumbbell-horiz.png)
+- Use circular barplots with care · [link](png/57-circular-barplot-distortion-horiz.png)
 
 ## Color
 - Use color intentionally · [link](png/06-use-color-intentionally-horiz.png)
@@ -40,7 +46,6 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Do you really need that box? · [link](png/38-remove-the-box-horiz.png)
 - Font size matters · [link](png/39-font-size-matters-horiz.png)
 - Group what belongs together · [link](png/40-group-what-belongs-together-horiz.png)
-- Reorder your heatmap · [link](png/47-reorder-your-heatmap-horiz.png)
 - Make the title say something · [link](png/49-make-the-title-say-something-horiz.png)
 
 ## Maps
@@ -50,33 +55,23 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Show missing data as missing · [link](png/51-show-missing-data-horiz.png)
 - Don't let small regions disappear · [link](png/52-small-regions-disappear-horiz.png)
 
-## Bar charts
-- Rank your barplot · [link](png/01-rank-your-barplot-horiz.png)
-- Avoid the moiré effect with lollipops · [link](png/08-avoid-moire-effect-horiz.png)
-
-## Distributions
-- Histograms: mind the bin size · [link](png/04-histogram-mind-the-bin-horiz.png)
-- Boxplots hide information · [link](png/05-boxplots-hide-info-horiz.png)
-- Error bars on barplots · [link](png/14-error-bars-on-barplot-horiz.png)
-- Show the sample size · [link](png/43-show-the-sample-size-horiz.png)
-
-## Lines and time series
-- The spaghetti chart · [link](png/09-the-spaghetti-chart-horiz.png)
-- Connect the dots · [link](png/17-connect-the-dots-horiz.png)
-- Stacked charts are hard to read · [link](png/24-stacked-charts-are-hard-horiz.png)
-- Make date axes easy to follow · [link](png/30-readable-date-axis-horiz.png)
-
-## Parts of a whole and overlaps
-- UpSet plots · [link](png/20-upset-plots-horiz.png)
-
-## Scatter plots and bubbles
-- Size bubbles by area, not radius · [link](png/07-map-bubble-size-to-area-horiz.png)
-- Z-index matters · [link](png/18-z-index-matters-horiz.png)
-- Mind your scatter plot's shape · [link](png/28-scatter-plot-aspect-ratio-horiz.png)
-- Beware of overplotting · [link](png/48-beware-of-overplotting-horiz.png)
-
 ## Labels and legends
 - Prefer horizontal labels · [link](png/02-prefer-horizontal-labels-horiz.png)
 - Minimize the use of legends · [link](png/11-minimize-use-of-legends-horiz.png)
 - Don't put labels on top of the data · [link](png/36-labels-off-the-data-horiz.png)
 - Round your numbers · [link](png/50-round-your-numbers-horiz.png)
+- Annotation is crucial · [link](png/55-annotate-your-chart-horiz.png)
+
+## Other
+- Rank your barplot · [link](png/01-rank-your-barplot-horiz.png)
+- Histograms: mind the bin size · [link](png/04-histogram-mind-the-bin-horiz.png)
+- Size bubbles by area, not radius · [link](png/07-map-bubble-size-to-area-horiz.png)
+- The spaghetti chart · [link](png/09-the-spaghetti-chart-horiz.png)
+- Connect the dots · [link](png/17-connect-the-dots-horiz.png)
+- Z-index matters · [link](png/18-z-index-matters-horiz.png)
+- UpSet plots · [link](png/20-upset-plots-horiz.png)
+- Stacked charts are hard to read · [link](png/24-stacked-charts-are-hard-horiz.png)
+- Mind your scatter plot's shape · [link](png/28-scatter-plot-aspect-ratio-horiz.png)
+- Make date axes easy to follow · [link](png/30-readable-date-axis-horiz.png)
+- Reorder your heatmap · [link](png/47-reorder-your-heatmap-horiz.png)
+- Beware of overplotting · [link](png/48-beware-of-overplotting-horiz.png)
