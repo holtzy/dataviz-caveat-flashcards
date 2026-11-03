@@ -3,8 +3,15 @@
 A collection of flashcards about common data visualization caveats, by [Data to Viz](https://www.data-to-viz.com).
 Each card shows a "not ideal" chart next to a better alternative, with a short explanation.
 
+👉 You can browse all the cards at [dataviz-inspiration.com/caveats](https://www.dataviz-inspiration.com/caveats), for a much better browsing experience than this repo.
+
 Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version, as PNG in [`png/`](png) and as lossless WebP in [`webp/`](webp). Links below open the horizontal PNG. New cards can be generated with the script in [`tools/`](tools).
 
+The text of every card (title, caption, what to look for, why it matters, how to fix it, when it's fine) lives in [`caveats.json`](caveats.json). This list and `caveats.md` are both generated from it by `node tools/docs.mjs`.
+
+🤖 **For AI agents:** [`caveats.md`](caveats.md) describes every card in plain text, so an agent can work with the collection without looking at the images. Point your AI assistant or coding agent to it (or paste it in) and ask it to review a chart or a piece of plotting code against all the caveats: for each one it gets what to look for, why it matters, how to fix it and when it's fine.
+
+<!-- cards:start -->
 ## Misleading charts
 - Do not cut the y-axis · [link](png/03-do-not-cut-y-axis-horiz.png)
 - Boxplots hide information · [link](png/05-boxplots-hide-info-horiz.png)
@@ -81,3 +88,4 @@ Every card comes in a horizontal (2560×1600) and a vertical (720×1440) version
 - Make date axes easy to follow · [link](png/30-readable-date-axis-horiz.png)
 - Reorder your heatmap · [link](png/47-reorder-your-heatmap-horiz.png)
 - Beware of overplotting · [link](png/48-beware-of-overplotting-horiz.png)
+<!-- cards:end -->

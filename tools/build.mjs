@@ -15,6 +15,9 @@ const world = JSON.parse(fs.readFileSync(path.join(TOOLS, "node_modules/world-at
 const countries = feature(world, world.objects.countries).features;
 const byName = (n) => countries.find((c) => c.properties.name === n);
 
+// Titles and captions live in caveats.json at the repo root; CARDS only holds the charts.
+const CAVEATS = JSON.parse(fs.readFileSync(path.join(REPO, "caveats.json"), "utf8")).caveats;
+
 const GRADIENT = `<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#84C3B5"/><stop offset="1" stop-color="#4C9A87"/></linearGradient>`;
 const svg = (w, h, inner) =>
   `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" overflow="visible" xmlns="http://www.w3.org/2000/svg"><defs>${GRADIENT}</defs>${inner}</svg>`;
@@ -818,363 +821,184 @@ function declutterChart(k, clean) {
 // ---------- card definitions ----------
 const CARDS = {
   "26-dont-move-countries": {
-    title: "DON’T MOVE COUNTRIES AROUND",
     titleBreak: "COUNTRIES ",
-    caption: [
-      "Moving a country to save space, or dropping it because it doesn’t fit, distorts geography",
-      "and can offend its people. Keep every country where it belongs, even if it costs some room.",
-    ],
     horiz: { mw: 760, mh: 560, top: 470, left: (w, h) => oceania(w, h, true), right: (w, h) => oceania(w, h, false) },
     vert: { mw: 440, mh: 330, top: 30, left: (w, h) => oceania(w, h, true), right: (w, h) => oceania(w, h, false) },
   },
   "27-beware-mercator": {
-    title: "BEWARE OF THE MERCATOR PROJECTION",
     titleBreak: "THE ",
-    caption: [
-      "Mercator inflates areas far from the equator: Greenland looks as big as Africa,",
-      "which is actually 14 times larger. To compare areas, use an equal-area projection like Equal Earth.",
-    ],
     horiz: { mw: 900, mh: 600, valign: true, left: (w, h) => worldMap(w, h, geoMercator(), 26), right: (w, h) => worldMap(w, h, geoEqualEarth(), 26) },
     vert: { mw: 520, mh: 340, valign: true, left: (w, h) => worldMap(w, h, geoMercator(), 14), right: (w, h) => worldMap(w, h, geoEqualEarth(), 14) },
   },
   "28-scatter-plot-aspect-ratio": {
-    title: "MIND YOUR SCATTER PLOT’S SHAPE",
     titleBreak: "SCATTER ",
-    caption: [
-      "Stretching a scatter plot changes how steep and how strong the relationship looks.",
-      "Default to a square plot, and always use a 1:1 ratio when both axes share the same unit.",
-    ],
     // Panels ignore mw/mh: each side has its own shape, centred in the panel.
     horiz: { valign: true, left: () => scatter(760, 330, 9, 2.5), right: () => scatter(480, 480, 9, 2.5) },
     vert: { valign: true, left: () => scatter(440, 190, 5, 1.4), right: () => scatter(290, 290, 5, 1.4) },
   },
   "29-draw-proportions-accurately": {
-    title: "DRAW PROPORTIONS ACCURATELY",
     titleBreak: "PROPORTIONS ",
-    caption: [
-      "When shapes don’t match the numbers, readers trust the shapes and get the wrong picture.",
-      "Always draw arcs, bars and areas from the data, never by eye.",
-    ],
     horiz: { valign: true, left: () => donutRow(PROPORTIONS(0.65, 0.35), 150, 44, 90, 84), right: () => donutRow(PROPORTIONS(0.86, 0.14), 150, 44, 90, 84) },
     vert: { valign: true, left: () => donutRow(PROPORTIONS(0.65, 0.35), 95, 28, 60, 52), right: () => donutRow(PROPORTIONS(0.86, 0.14), 95, 28, 60, 52) },
   },
   "30-readable-date-axis": {
-    title: "MAKE DATE AXES EASY TO FOLLOW",
     titleBreak: "AXES ",
-    caption: [
-      "Ticks on arbitrary dates, with no year, force readers to work out where they are in time.",
-      "Place ticks at regular, meaningful intervals such as months or quarters, and show the year.",
-    ],
     horiz: { valign: true, left: () => timeSeries(720, 330, ODD_TICKS, 2.4), right: () => timeSeries(720, 330, CLEAN_TICKS, 2.4) },
     vert: { valign: true, left: () => timeSeries(430, 190, ODD_TICKS, 1.35), right: () => timeSeries(430, 190, CLEAN_TICKS, 1.35) },
   },
   "31-sequential-palette-for-numbers": {
-    title: "USE A SEQUENTIAL PALETTE FOR NUMBERS",
     titleBreak: "SEQUENTIAL ",
-    caption: [
-      "Categorical colors have no natural order: readers can’t tell which color means more without",
-      "constantly checking the legend. For numeric values, use a sequential palette from light to dark.",
-    ],
     horiz: { valign: true, left: () => choropleth(620, 640, CATEGORICAL, 22), right: () => choropleth(620, 640, SEQUENTIAL, 22) },
     vert: { valign: true, left: () => choropleth(330, 340, CATEGORICAL, 13), right: () => choropleth(330, 340, SEQUENTIAL, 13) },
   },
   "32-share-the-y-axis": {
     title: "SHARE THE Y AXIS TO COMPARE CHARTS",
     titleBreak: "AXIS ",
-    caption: [
-      "When charts sit side by side to compare the same measure, different y scales make them look alike.",
-      "Use the same y axis on all of them so that heights can be compared directly.",
-    ],
     horiz: { valign: true, left: () => smallMultiples(800, 300, false, 2.4), right: () => smallMultiples(800, 300, true, 2.4) },
     vert: { valign: true, left: () => smallMultiples(470, 190, false, 1.35), right: () => smallMultiples(470, 190, true, 1.35) },
   },
   "33-too-many-colors": {
-    title: "TOO MANY COLORS KILL THE STORY",
     titleBreak: "COLORS ",
-    caption: [
-      "Beyond a handful of colors, readers can no longer match them to the legend.",
-      "Find the story in your data, highlight only what matters, and leave the rest in grey.",
-    ],
     horiz: { valign: true, left: () => manyGroups(720, 440, false, 2.4), right: () => manyGroups(560, 440, true, 2.4) },
     vert: { valign: true, left: () => manyGroups(430, 260, false, 1.35), right: () => manyGroups(330, 260, true, 1.35) },
   },
   "34-distinct-colors-for-groups": {
-    title: "DON’T USE A GRADIENT FOR GROUPS",
     titleBreak: "GRADIENT ",
-    caption: [
-      "Shades of a single color are hard to tell apart and suggest an order between groups that doesn’t exist.",
-      "For categories, use clearly distinct hues, and keep gradients for numeric values.",
-    ],
     horiz: { valign: true, left: () => groupLines(720, 440, CONTINUOUS5, 2.4), right: () => groupLines(720, 440, DISTINCT5, 2.4) },
     vert: { valign: true, left: () => groupLines(440, 270, CONTINUOUS5, 1.35), right: () => groupLines(440, 270, DISTINCT5, 1.35) },
   },
   "35-align-everything": {
-    title: "ALIGN EVERYTHING WITH SOMETHING",
     titleBreak: "EVERYTHING ",
-    caption: [
-      "When the title, labels and notes each start somewhere different, the chart looks messy and is harder to scan.",
-      "Snap every element to a shared edge: the fewer alignment lines, the calmer the figure.",
-    ],
     horiz: { valign: true, left: () => barStory(2.4, MISALIGNED), right: () => barStory(2.4, ALIGNED) },
     vert: { valign: true, left: () => barStory(1.3, MISALIGNED), right: () => barStory(1.3, ALIGNED) },
   },
   "36-labels-off-the-data": {
-    title: "DON’T PUT LABELS ON TOP OF THE DATA",
     titleBreak: "LABELS ",
-    caption: [
-      "Labels and annotations drawn over lines or shapes hide the data and are hard to read.",
-      "Place them in empty space, right next to what they describe, such as at the end of a line.",
-    ],
     horiz: { valign: true, left: () => slopeChart(2.6, true), right: () => slopeChart(2.6, false) },
     vert: { valign: true, left: () => slopeChart(1.5, true), right: () => slopeChart(1.5, false) },
   },
   "37-two-fonts-max": {
-    title: "TWO FONTS ARE ENOUGH",
     titleBreak: "FONTS ",
-    caption: [
-      "Every extra typeface adds visual noise and makes a chart look improvised.",
-      "Stick to two fonts at most, and use size and weight to build the hierarchy.",
-    ],
     horiz: { valign: true, left: () => barStory(2.4, MANY_FONTS), right: () => barStory(2.4) },
     vert: { valign: true, left: () => barStory(1.3, MANY_FONTS), right: () => barStory(1.3) },
   },
   "38-remove-the-box": {
-    title: "DO YOU REALLY NEED THAT BOX?",
     titleBreak: "REALLY ",
-    caption: [
-      "Many R and Python defaults wrap every chart in a box, with ticks on all sides and a dense grid.",
-      "It is pure clutter: drop the frame, keep a few light gridlines, and let the data stand out.",
-    ],
     horiz: { valign: true, left: () => framedLine(2.4, true), right: () => framedLine(2.4, false) },
     vert: { valign: true, left: () => framedLine(1.4, true), right: () => framedLine(1.4, false) },
   },
   "39-font-size-matters": {
-    title: "FONT SIZE MATTERS",
     titleBreak: "SIZE ",
-    caption: [
-      "Tiny text forces readers to squint, and becomes unreadable on slides and phones.",
-      "Never go below 14px for anything meant to be read, and make the title bigger still.",
-    ],
     horiz: { valign: true, left: () => barStory(2.4, { size: 0.45 }), right: () => barStory(2.4) },
     vert: { valign: true, left: () => barStory(1.3, { size: 0.45 }), right: () => barStory(1.3) },
   },
   "40-group-what-belongs-together": {
-    title: "GROUP WHAT BELONGS TOGETHER",
     titleBreak: "WHAT ",
-    caption: [
-      "Spacing tells readers what goes together. Loose line height and floating labels blur the structure.",
-      "Keep related items tight, put labels right next to their data, and leave more room between groups.",
-    ],
     horiz: { valign: true, left: () => grouping(2.4, false), right: () => grouping(2.4, true) },
     vert: { valign: true, left: () => grouping(1.3, false), right: () => grouping(1.3, true) },
   },
   "41-normalize-your-maps": {
-    title: "NORMALIZE YOUR MAPS",
     titleBreak: "YOUR ",
-    caption: [
-      "A map of raw counts is mostly a map of where people live: the biggest countries always look the worst.",
-      "Divide by population, or by area, so that colors show a rate rather than a size.",
-    ],
     horiz: { valign: true, left: () => rawMap(820, 600, 22), right: () => rateMap(820, 600, 22) },
     vert: { valign: true, left: () => rawMap(460, 340, 12.5), right: () => rateMap(460, 340, 12.5) },
   },
   "42-respect-time-intervals": {
-    title: "RESPECT TIME INTERVALS",
     titleBreak: "TIME ",
-    caption: [
-      "Evenly spaced bars for unevenly spaced dates distort the trend: here, steady growth looks like a slowdown.",
-      "Put time on a true scale, so that gaps between dates show as gaps on the chart.",
-    ],
     horiz: { valign: true, left: () => timeBars(2.4, false), right: () => timeBars(2.4, true) },
     vert: { valign: true, left: () => timeBars(1.35, false), right: () => timeBars(1.35, true) },
   },
   "43-show-the-sample-size": {
-    title: "SHOW THE SAMPLE SIZE",
     titleBreak: "THE ",
-    caption: [
-      "A mean alone hides how much data stands behind it: 8 values or 1,000 look exactly the same.",
-      "Show the individual points, or at least the sample size, so readers can judge how solid it is.",
-    ],
     horiz: { valign: true, left: () => sampleSize(2.4, false), right: () => sampleSize(2.4, true) },
     vert: { valign: true, left: () => sampleSize(1.3, false), right: () => sampleSize(1.3, true) },
   },
   "44-avoid-the-rainbow-palette": {
-    title: "AVOID THE RAINBOW PALETTE",
     titleBreak: "THE ",
-    caption: [
-      "Rainbow palettes draw sharp bands that aren’t in the data, and their bright yellow grabs attention for no reason.",
-      "Use a perceptually uniform palette that goes smoothly from light to dark.",
-    ],
     horiz: { valign: true, left: () => heatField(2.5, JET), right: () => heatField(2.5, TEAL_RAMP) },
     vert: { valign: true, left: () => heatField(1.4, JET), right: () => heatField(1.4, TEAL_RAMP) },
   },
   "45-diverging-palette": {
-    title: "DIVERGING DATA, DIVERGING PALETTE",
     titleBreak: "DATA, ",
-    caption: [
-      "When values fall on both sides of a meaningful midpoint, like zero, a sequential palette hides which side they are on.",
-      "Use a diverging palette: one hue for each direction, meeting at a light neutral color at the midpoint.",
-    ],
     horiz: { valign: true, left: () => anomalyMap(820, 600, SEQUENTIAL, 22), right: () => anomalyMap(820, 600, DIVERGING5, 22) },
     vert: { valign: true, left: () => anomalyMap(460, 340, SEQUENTIAL, 12.5), right: () => anomalyMap(460, 340, DIVERGING5, 12.5) },
   },
   "46-think-of-colorblind-readers": {
-    title: "THINK OF COLORBLIND READERS",
     titleBreak: "OF ",
-    caption: [
-      "About 1 man in 12 has a color vision deficiency, and red versus green is the classic trap.",
-      "Pick colorblind-safe pairs such as blue and orange, and label lines directly whenever you can.",
-    ],
     horiz: { valign: true, left: () => cvdPair(2.6, ["#D9534F", "#5CB85C"], false), right: () => cvdPair(2.6, ["#3B6FB6", "#E69F00"], true) },
     vert: { valign: true, left: () => cvdPair(1.45, ["#D9534F", "#5CB85C"], false), right: () => cvdPair(1.45, ["#3B6FB6", "#E69F00"], true) },
   },
   "47-reorder-your-heatmap": {
-    title: "REORDER YOUR HEATMAP",
     titleBreak: "YOUR ",
-    caption: [
-      "In alphabetical or random order, the rows and columns of a heatmap look like noise.",
-      "Reorder them, for instance with hierarchical clustering, so that groups and patterns appear.",
-    ],
     horiz: { valign: true, left: () => clusterHeatmap(3, false), right: () => clusterHeatmap(3, true) },
     vert: { valign: true, left: () => clusterHeatmap(1.7, false), right: () => clusterHeatmap(1.7, true) },
   },
   "48-beware-of-overplotting": {
-    title: "BEWARE OF OVERPLOTTING",
     titleBreak: "OF ",
-    caption: [
-      "With thousands of points, dots pile up into a solid blob that hides the shape of the data.",
-      "Use smaller, transparent dots, or switch to a 2D density or hexbin chart.",
-    ],
     horiz: { valign: true, left: () => crowd(2.4, false), right: () => crowd(2.4, true) },
     vert: { valign: true, left: () => crowd(1.4, false), right: () => crowd(1.4, true) },
   },
   "49-make-the-title-say-something": {
-    title: "MAKE THE TITLE SAY SOMETHING",
     titleBreak: "TITLE ",
-    caption: [
-      "A generic title like “Sales by year” leaves readers to find the message on their own.",
-      "Write the takeaway in the title, and highlight it on the chart.",
-    ],
     horiz: { valign: true, left: () => takeawayChart(2.4, false), right: () => takeawayChart(2.4, true) },
     vert: { valign: true, left: () => takeawayChart(1.35, false), right: () => takeawayChart(1.35, true) },
   },
   "50-round-your-numbers": {
-    title: "ROUND YOUR NUMBERS",
     titleBreak: "YOUR ",
-    caption: [
-      "Too many decimals add noise, and suggest a precision the data doesn’t have.",
-      "Round to what matters, and drop axes that only repeat the labels.",
-    ],
     horiz: { valign: true, left: () => roundedBars(2.4, false), right: () => roundedBars(2.4, true) },
     vert: { valign: true, left: () => roundedBars(1.35, false), right: () => roundedBars(1.35, true) },
   },
   "51-show-missing-data": {
-    title: "SHOW MISSING DATA AS MISSING",
     titleBreak: "DATA ",
-    caption: [
-      "When countries without data get the lightest color, readers take them for low values.",
-      "Give missing data its own neutral style, like grey hatching, and name it in the legend.",
-    ],
     horiz: { valign: true, left: () => missingMap(820, 600, 22, false), right: () => missingMap(820, 600, 22, true) },
     vert: { valign: true, left: () => missingMap(460, 340, 12.5, false), right: () => missingMap(460, 340, 12.5, true) },
   },
   "52-small-regions-disappear": {
-    title: "DON’T LET SMALL REGIONS DISAPPEAR",
     titleBreak: "SMALL ",
-    caption: [
-      "On a choropleth, small countries are only a few pixels wide: here, the two highest values are invisible.",
-      "Call them out with markers and labels, or use a tile map where every region gets the same size.",
-    ],
     horiz: { valign: true, left: () => smallStatesMap(820, 600, 22, false), right: () => smallStatesMap(820, 600, 22, true) },
     vert: { valign: true, left: () => smallStatesMap(460, 340, 12.5, false), right: () => smallStatesMap(460, 340, 12.5, true) },
   },
   "53-maybe-you-dont-need-a-map": {
-    title: "MAYBE YOU DON’T NEED A MAP",
     titleBreak: "YOU ",
-    caption: [
-      "If the question is “who ranks first?”, colored shapes make readers squint and guess.",
-      "When geography is not the point, a sorted bar chart compares values far more precisely.",
-    ],
     horiz: { valign: true, left: () => rankMap(820, 600, 22), right: () => rankBars(2.4) },
     vert: { valign: true, left: () => rankMap(460, 340, 12.5), right: () => rankBars(1.3) },
   },
   "54-two-groups-try-a-dumbbell": {
-    title: "TWO GROUPS? TRY A DUMBBELL PLOT",
     titleBreak: "GROUPS? ",
-    caption: [
-      "Side-by-side bars double the ink and leave readers to estimate the gap between them on their own.",
-      "When the change is the story, a dumbbell plot shows it directly, and uses half the ink.",
-    ],
     horiz: { valign: true, left: () => yearChart(2.9, false), right: () => yearChart(2.9, true) },
     vert: { valign: true, left: () => yearChart(1.6, false), right: () => yearChart(1.6, true) },
   },
   "55-annotate-your-chart": {
-    title: "ANNOTATION IS CRUCIAL",
     titleBreak: "IS ",
-    caption: [
-      "A bare chart leaves readers guessing, and you only have a few seconds to hold their attention.",
-      "Add short notes, shaded areas and value labels that point straight at what matters.",
-    ],
     horiz: { valign: true, left: () => ticketsChart(2.4, false), right: () => ticketsChart(2.4, true) },
     vert: { valign: true, left: () => ticketsChart(1.35, false), right: () => ticketsChart(1.35, true) },
   },
   "56-simpsons-paradox": {
-    title: "BEWARE OF SIMPSON’S PARADOX",
     titleBreak: "OF ",
-    caption: [
-      "Overall, x and y seem to rise together. Split the data by group, and the trend reverses in each one.",
-      "Before trusting a correlation, check whether a hidden variable drives it.",
-    ],
     horiz: { valign: true, left: () => simpsonChart(2.4, false), right: () => simpsonChart(2.4, true) },
     vert: { valign: true, left: () => simpsonChart(1.4, false), right: () => simpsonChart(1.4, true) },
   },
   "57-circular-barplot-distortion": {
-    title: "USE CIRCULAR BARPLOTS WITH CARE",
     titleBreak: "BARPLOTS ",
-    caption: [
-      "Bars get wider away from the center, so large values look even larger than they are.",
-      "If you go circular, use many bars, a clear pattern, and a large inner circle.",
-    ],
     horiz: { valign: true, left: () => circularBars(2.7, false), right: () => circularBars(2.7, true) },
     vert: { valign: true, left: () => circularBars(1.6, false), right: () => circularBars(1.6, true) },
   },
   "58-use-margins-between-charts": {
-    title: "USE MARGINS BETWEEN CHARTS",
     titleBreak: "MARGINS ",
-    caption: [
-      "When charts touch each other, the page feels crowded and it’s hard to tell where one chart ends.",
-      "Leave clear gaps between them, and some padding inside each one.",
-    ],
     horiz: { valign: true, left: () => dashboard(2.6, false), right: () => dashboard(2.6, true) },
     vert: { valign: true, left: () => dashboard(1.55, false), right: () => dashboard(1.55, true) },
   },
   "59-link-your-charts": {
-    title: "LINK CHARTS THAT SHARE AN AXIS",
     titleBreak: "CHARTS ",
-    caption: [
-      "When charts share dates or groups, a tooltip on just one of them leaves readers hunting for the match.",
-      "On hover, highlight the same date or group on every chart at once.",
-    ],
     horiz: { valign: true, left: () => linkedCharts(2.6, false), right: () => linkedCharts(2.6, true) },
     vert: { valign: true, left: () => linkedCharts(1.55, false), right: () => linkedCharts(1.55, true) },
   },
   "60-dont-label-every-tick": {
-    title: "DON’T LABEL EVERY TICK",
     titleBreak: "LABEL ",
-    caption: [
-      "Labelling every tick crowds the axis, and on small screens the numbers soon touch or overlap.",
-      "Label round steps only, and keep shorter ticks in between to show the scale.",
-    ],
     horiz: { valign: true, left: () => tickChart(2.6, false), right: () => tickChart(2.6, true) },
     vert: { valign: true, left: () => tickChart(1.5, false), right: () => tickChart(1.5, true) },
   },
   "61-declutter-less-is-more": {
-    title: "DECLUTTER: LESS IS MORE",
     titleBreak: "DECLUTTER: ",
-    caption: [
-      "Frames, dense grids, legends and decimals all compete with your message for the reader’s eye.",
-      "Remove what doesn’t serve your point, and let the title and colors carry it.",
-    ],
     horiz: { valign: true, left: () => declutterChart(2.6, false), right: () => declutterChart(2.6, true) },
     vert: { valign: true, left: () => declutterChart(1.5, false), right: () => declutterChart(1.5, true) },
   },
@@ -1192,8 +1016,16 @@ body{background:url("${base}") no-repeat 0 0;position:relative}
 </style></head><body>${body}</body></html>`;
 
 const slug = process.argv[2];
-const card = CARDS[slug];
-if (!card) throw new Error(`unknown card ${slug}; known: ${Object.keys(CARDS).join(", ")}`);
+const chart = CARDS[slug];
+if (!chart) throw new Error(`unknown card ${slug}; known: ${Object.keys(CARDS).join(", ")}`);
+const caveat = CAVEATS.find((c) => c.id === slug);
+if (!caveat) throw new Error(`${slug} is missing from caveats.json`);
+// The printed title is the caveat title in capitals, with typographic apostrophes.
+const card = {
+  ...chart,
+  title: chart.title ?? caveat.title.toUpperCase().replace(/'/g, "’"),
+  caption: caveat.caption.split("\n"),
+};
 
 { // horizontal 2560x1600: panels x 187-1186 / 1373-2372, y 400-1200, label at ~1100
   const { mw, mh, top, valign, left, right } = card.horiz;

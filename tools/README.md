@@ -11,10 +11,12 @@ cd tools && npm install        # once
 ./render.sh 27-beware-mercator # writes png/ and webp/, horizontal + vertical
 ```
 
-To add a card, add an entry to `CARDS` in `build.mjs`:
+To add a card:
 
-- `title`, and `titleBreak`: the word after which the vertical version wraps to a second line
-- `caption`: two lines for the horizontal version (joined into a paragraph for the vertical one)
-- `horiz` / `vert`: chart size (`mw`, `mh`), and `left` / `right` functions returning the "not ideal" and "better" SVGs
-
-Then run `./render.sh <slug>` and add the card to the main README.
+1. Add it to [`caveats.json`](../caveats.json): `id` (the slug), `section`, `title`, `caption` (two lines separated by `\n` for the
+   horizontal version, joined into a paragraph for the vertical one), `look_for`, `why`, `fix`, `ok_when` and `article`.
+   The printed title is `title` in capitals.
+2. Add its charts to `CARDS` in `build.mjs`:
+   - `titleBreak`: the word after which the vertical version wraps to a second line
+   - `horiz` / `vert`: chart size (`mw`, `mh`), and `left` / `right` functions returning the "not ideal" and "better" SVGs
+3. Run `./render.sh <slug>`, then `node docs.mjs` to update the main README and `caveats.md`.
