@@ -2,9 +2,11 @@
 
 ![Dataviz caveat flashcards laid out on a table](overview/grid.jpg)
 
+[dataviz-inspiration.com/caveats](https://www.dataviz-inspiration.com/caveats)
+
 ### What is this?
 
-A collection of flashcards about the most common data visualization caveats, by [Data to Viz](https://www.data-to-viz.com).
+A collection of flashcards about the most common data visualization caveats, by Data to Viz.
 Each card shows a "not ideal" chart next to a better alternative, with a short explanation.
 
 Each card comes in a horizontal and a vertical version, both as PNG and WebP.
