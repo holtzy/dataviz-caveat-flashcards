@@ -234,7 +234,7 @@ function collage(name, tiles) {
 // "Lego" grid: rows of blocks, each row scaled to fill the full width exactly.
 // B = one big horizontal card, V = one vertical card, HH = two horizontal cards stacked.
 {
-  const ROWS = ["B HH HH HH V HH", "HH HH B V HH HH", "V HH HH V HH V HH", "HH B V B HH V", "V HH V HH B HH", "HH V HH B HH V"];
+  const ROWS = ["B HH HH HH V HH", "HH HH B V HH HH", "V HH HH V HH V HH", "HH B V B HH V", "V HH V HH B HH", "HH V HH B HH V", "B HH V HH HH"];
   const slots = ROWS.join(" ").split(" ").reduce((n, m) => n + (m === "HH" ? 2 : 1), 0);
   const tiles = [], queue = withBrand(slots, "lego");
   let y = 0;
@@ -261,7 +261,7 @@ function collage(name, tiles) {
 // Masonry: equal-width columns mixing both orientations. A vertical card is about as tall as three
 // horizontal ones, so columns with 0 V + 12 H, 1 V + 9 H or 2 V + 6 H end up nearly level; gaps absorb the rest.
 {
-  const PLAN = [[1, 9], [2, 6], [0, 12], [1, 9], [1, 9], [2, 6]]; // [vertical, horizontal] cards per column
+  const PLAN = [[1, 9], [0, 12], [1, 9], [0, 12], [1, 9], [1, 9]]; // [vertical, horizontal] cards per column
   const cols = PLAN.length, w = (CW - (cols - 1) * GAP) / cols, queue = withBrand(PLAN.flat().reduce((a, b) => a + b), "masonry");
   const columns = PLAN.map(([nv, nh], ci) => {
     // Spread the vertical cards along the column, shifted from one column to the next.
